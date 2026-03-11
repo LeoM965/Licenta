@@ -6,7 +6,7 @@ using Economics.Models;
 
 namespace UI.Menus.Tabs
 {
-    public class RobotDashboardTab
+    public class RobotDashboardTab : BaseDashboardTab
     {
         private string filterZone = "Toate";
         private readonly float[] robotColOffsets = { 0, 45, 115, 250, 310, 370, 435, 505, 575 };
@@ -71,10 +71,10 @@ namespace UI.Menus.Tabs
             }
         }
 
-        public void DrawTab(float x, float y, UITheme theme)
+        public override void DrawTab(float x, float y, UITheme theme)
         {
-            GUI.Label(new Rect(x, y, 300, 20), "TABEL ANALIZĂ FLOTĂ ROBOȚI", theme.Value);
-            y += 30;
+            DrawSectionTitle(x, ref y, "TABEL ANALIZĂ FLOTĂ ROBOȚI", theme);
+            y += 5; // Adjustment for filter row
 
             float bx = x + 340;
             string[] zones = { "Toate", "A", "B", "C", "D" };

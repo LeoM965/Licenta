@@ -6,12 +6,11 @@ using System.Collections.Generic;
 
 namespace UI.Menus.Tabs
 {
-    public class HistoryDashboardTab
+    public class HistoryDashboardTab : BaseDashboardTab
     {
-        private Vector2 scrollPos;
         private readonly float[] colOffsets = { 0, 80, 180, 280, 380, 480, 580 };
 
-        public void DrawTab(float x, float y, UITheme theme)
+        public override void DrawTab(float x, float y, UITheme theme)
         {
             if (EconomicsHistoryManager.Instance == null)
             {
@@ -30,26 +29,18 @@ namespace UI.Menus.Tabs
             DrawComparisonSummary(x, y, history, theme);
             y += 70;
 
-            GUI.Label(new Rect(x, y, 300, 20), "ISTORIC ZILNIC DETALIAT", theme.Value);
-            y += 25;
+            DrawSectionTitle(x, ref y, "ISTORIC ZILNIC DETALIAT", theme);
 
             DrawTableHeader(x, y, theme);
             y += 20;
 
-            Rect scrollRect = new Rect(x, y, 610, 200);
-            Rect viewRect = new Rect(0, 0, 590, history.Count * 20);
-
-            scrollPos = GUI.BeginScrollView(scrollRect, scrollPos, viewRect);
-            
-            float rowY = 0;
-            // Draw history in reverse order (newest first)
-            for (int i = history.Count - 1; i >= 0; i--)
-            {
-                DrawHistoryRow(0, rowY, history[i], theme);
-                rowY += 20;
-            }
-
-            GUI.EndScrollView();
+            DrawScrollableArea(x, ref y, 610, 200, history.Count, 20, (rowY) => {
+                for (int i = history.Count - 1; i >= 0; i--)
+                {
+                    DrawHistoryRow(0, rowY, history[i], theme);
+                    rowY += 20;
+                }
+            });
         }
 
         private void DrawComparisonSummary(float x, float y, List<DailySnapshot> history, UITheme theme)

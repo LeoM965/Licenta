@@ -4,9 +4,14 @@ using UI.Utils;
 
 namespace UI.Menus.Tabs
 {
-    public class CropDashboardTab
+    public class CropDashboardTab : BaseDashboardTab
     {
         private readonly float[] colOffsets = { 0, 110, 160, 230, 305, 380, 455, 525, 595 };
+
+        public override void DrawTab(float x, float y, UITheme theme)
+        {
+            // Placeholder for base override - logic is in DrawTab overload
+        }
 
         public void DrawTab(float x, float y, EconomicReport activeReport, CropData[] crops, UITheme theme)
         {
