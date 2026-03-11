@@ -87,8 +87,7 @@ namespace UI.Menus.Tabs
             y += 25;
 
             string[] headers = { "Zone", "Model", "Activity", "Bat.", "Hours", "Dist(km)", "Cost(€)", "Venit(€)", "ROI %" };
-            for (int i = 0; i < headers.Length; i++)
-                GUI.Label(new Rect(x + robotColOffsets[i], y, 100, 16), headers[i], theme.Value);
+            UIDrawUtils.DrawRow(x, y, robotColOffsets, headers, theme.Value);
             
             y += 22;
             UIDrawUtils.DrawHorizontalLine(x, y, 610);
@@ -99,23 +98,36 @@ namespace UI.Menus.Tabs
                 if (filterZone != "Toate" && data.Zone != filterZone) continue;
 
                 GUIStyle batStyle = data.BatteryPct > 60 ? theme.Good : (data.BatteryPct > 25 ? theme.Warn : theme.Bad);
-                
-                // Resolve style based on activity text
                 GUIStyle statusStyle = theme.Label;
                 if (data.StatusText == "Working" || data.StatusText == "MovingToParcel") statusStyle = theme.Good;
                 else if (data.StatusText == "Charging") statusStyle = theme.Bad;
                 else if (data.StatusText != "Idle") statusStyle = theme.Warn;
 
-                GUI.Label(new Rect(x + robotColOffsets[0], y, 50, 15), $"[{data.Zone}]", theme.Good);
-                GUI.Label(new Rect(x + robotColOffsets[1], y, 70, 15), data.Type, theme.Label);
-                GUI.Label(new Rect(x + robotColOffsets[2], y, 130, 15), data.StatusText, statusStyle);
-                GUI.Label(new Rect(x + robotColOffsets[3], y, 50, 15), $"{data.BatteryPct:F0}%", batStyle);
-                GUI.Label(new Rect(x + robotColOffsets[4], y, 60, 15), data.WorkHours.ToString("F2") + "h", theme.Label);
-                GUI.Label(new Rect(x + robotColOffsets[5], y, 60, 15), data.DistKm.ToString("F2") + "km", theme.Label);
-                GUI.Label(new Rect(x + robotColOffsets[6], y, 60, 15), data.TotalCost.ToString("F1") + "€", theme.Label);
-                GUI.Label(new Rect(x + robotColOffsets[7], y, 60, 15), data.RevenueGenerated.ToString("F1") + "€", theme.Good);
-                GUI.Label(new Rect(x + robotColOffsets[8], y, 80, 15), data.ROI.ToString("F2") + "%", theme.GetProfitStyle(data.ROI));
-                
+                string[] values = {
+                    $"[{data.Zone}]",
+                    data.Type,
+                    data.StatusText,
+                    $"{data.BatteryPct:F0}%",
+                    data.WorkHours.ToString("F2") + "h",
+                    data.DistKm.ToString("F2") + "km",
+                    data.TotalCost.ToString("F1") + "€",
+                    data.RevenueGenerated.ToString("F1") + "€",
+                    data.ROI.ToString("F2") + "%"
+                };
+
+                GUIStyle[] styles = {
+                    theme.Good,
+                    theme.Label,
+                    statusStyle,
+                    batStyle,
+                    theme.Label,
+                    theme.Label,
+                    theme.Label,
+                    theme.Good,
+                    theme.GetProfitStyle(data.ROI)
+                };
+
+                UIDrawUtils.DrawRow(x, y, robotColOffsets, values, styles);
                 y += 18;
             }
         }

@@ -7,8 +7,13 @@ namespace Economics.Services
 {
     public static class CropEconomicsCalculator
     {
+        private static EconomicReport lastReport;
+        private static int lastCalculatedFrame = -1;
+
         public static EconomicReport GetAnalysis(CropDatabase db)
         {
+            if (Time.frameCount == lastCalculatedFrame) return lastReport;
+
             var report = new EconomicReport 
             { 
                 AnalysisByVariety = new Dictionary<string, CropStats>() 
@@ -33,6 +38,8 @@ namespace Economics.Services
             }
 
             CalculateFarmTotals(ref report);
+            lastReport = report;
+            lastCalculatedFrame = Time.frameCount;
             return report;
         }
 

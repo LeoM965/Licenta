@@ -78,20 +78,31 @@ namespace UI.Menus.Tabs
         private void DrawTableHeader(float x, float y, UITheme theme)
         {
             string[] headers = { "Ziua", "Profit €", "Venit €", "Costuri €", "Kg Total", "Plante" };
-            for (int i = 0; i < headers.Length; i++)
-                GUI.Label(new Rect(x + colOffsets[i], y, 90, 16), headers[i], theme.Value);
-            
+            UIDrawUtils.DrawRow(x, y, colOffsets, headers, theme.Value, colWidth: 90f);
             UIDrawUtils.DrawHorizontalLine(x, y + 18, 610);
         }
 
         private void DrawHistoryRow(float x, float y, DailySnapshot s, UITheme theme)
         {
-            GUI.Label(new Rect(x + colOffsets[0], y, 60, 18), $"Ziua {s.Day}", theme.Label);
-            GUI.Label(new Rect(x + colOffsets[1], y, 90, 18), s.NetProfit.ToString("F1") + " €", theme.GetProfitStyle(s.NetProfit));
-            GUI.Label(new Rect(x + colOffsets[2], y, 90, 18), s.TotalRevenue.ToString("F1") + " €", theme.Label);
-            GUI.Label(new Rect(x + colOffsets[3], y, 90, 18), s.TotalCosts.ToString("F1") + " €", theme.Label);
-            GUI.Label(new Rect(x + colOffsets[4], y, 90, 18), s.TotalWeightKg.ToString("F1"), theme.Label);
-            GUI.Label(new Rect(x + colOffsets[5], y, 60, 18), s.TotalPlants.ToString(), theme.Label);
+            string[] values = {
+                $"Ziua {s.Day}",
+                s.NetProfit.ToString("F1") + " €",
+                s.TotalRevenue.ToString("F1") + " €",
+                s.TotalCosts.ToString("F1") + " €",
+                s.TotalWeightKg.ToString("F1"),
+                s.TotalPlants.ToString()
+            };
+
+            GUIStyle[] styles = {
+                theme.Label,
+                theme.GetProfitStyle(s.NetProfit),
+                theme.Label,
+                theme.Label,
+                theme.Label,
+                theme.Label
+            };
+
+            UIDrawUtils.DrawRow(x, y, colOffsets, values, styles, colWidth: 90f);
         }
     }
 }

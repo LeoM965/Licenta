@@ -31,8 +31,6 @@ public class RobotStats
 
     public RobotStats(Transform robot)
     {
-        type = DetectType(robot.name);
-
         RobotDataEntry data = RobotDataLoader.FindByName(robot.name);
         if (data != null)
         {
@@ -47,6 +45,7 @@ public class RobotStats
             Debug.LogWarning($"[RobotStats] No data in RobotData.json for '{robot.name}'");
         }
 
+        type = DetectType(robot.name, model);
         UpdateZone(robot.position); // Inițializăm zona la creare
     }
 
@@ -115,12 +114,13 @@ public class RobotStats
         return "?";
     }
 
-    private static string DetectType(string name)
+    private static string DetectType(string name, string modelFromData)
     {
+        if (!string.IsNullOrEmpty(modelFromData)) return modelFromData;
+        
         if (name.StartsWith("AgroBot")) return "AgroBot";
         if (name.StartsWith("AgBot") || name.StartsWith("AqBot")) return "AgBot";
         if (name.Contains("HarvestBot")) return "HarvestBot";
-        if (name.Contains("Hybrid")) return "AgBot";
-        return name;
+        return "Robot";
     }
 }

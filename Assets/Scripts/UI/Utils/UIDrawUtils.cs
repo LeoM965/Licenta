@@ -11,5 +11,25 @@ namespace UI.Utils
             GUI.DrawTexture(new Rect(x, y, width, 1), Texture2D.whiteTexture);
             GUI.color = oldColor;
         }
+
+        public static void DrawRow(float x, float y, float[] offsets, string[] values, GUIStyle style, float height = 16f, float colWidth = 100f)
+        {
+            if (values == null || offsets == null) return;
+            int count = Mathf.Min(values.Length, offsets.Length);
+            for (int i = 0; i < count; i++)
+            {
+                GUI.Label(new Rect(x + offsets[i], y, colWidth, height), values[i], style);
+            }
+        }
+
+        public static void DrawRow(float x, float y, float[] offsets, string[] values, GUIStyle[] styles, float height = 16f, float colWidth = 100f)
+        {
+            if (values == null || offsets == null || styles == null) return;
+            int count = Mathf.Min(values.Length, Mathf.Min(offsets.Length, styles.Length));
+            for (int i = 0; i < count; i++)
+            {
+                GUI.Label(new Rect(x + offsets[i], y, colWidth, height), values[i], styles[i]);
+            }
+        }
     }
 }

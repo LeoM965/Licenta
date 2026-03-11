@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Economics.Models
@@ -35,5 +36,20 @@ namespace Economics.Models
     {
         public Dictionary<string, CropStats> AnalysisByVariety;
         public CropStats FarmTotals;
+    }
+
+    [Serializable]
+    public struct DailySnapshot
+    {
+        public int Day;
+        public float TotalRevenue;
+        public float TotalCosts;
+        public float NetProfit;
+        public float TotalWeightKg;
+        public int TotalPlants;
+
+        // Deltas for comparison
+        public float ProfitDelta; // Change from previous day
+        public float RevenueDelta;
     }
 }

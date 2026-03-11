@@ -32,8 +32,7 @@ namespace UI.Menus.Tabs
         private void DrawTableHeader(float x, float y, UITheme theme)
         {
             string[] headers = { "Cultură", "Plant", "Cost €", "Venit €", "Kg", "Profit €", "ROI %", "Fit %" };
-            for (int i = 0; i < headers.Length; i++)
-                GUI.Label(new Rect(x + colOffsets[i], y, 65, 16), headers[i], theme.Value);
+            UIDrawUtils.DrawRow(x, y, colOffsets, headers, theme.Value, colWidth: 65f);
         }
 
         private void DrawDataRow(float x, float y, string label, CropStats s, UITheme theme, bool isTotalRow)
@@ -46,21 +45,32 @@ namespace UI.Menus.Tabs
             GUIStyle labelStyle = isTotalRow ? theme.Value : ((s.TotalPlants + s.HarvestedPlants) > 0 ? theme.Good : theme.Label);
             GUIStyle dataStyle = isTotalRow ? theme.Value : theme.Label;
 
-            string plantText = s.HarvestedPlants > 0 
-                ? $"{s.TotalPlants}+{s.HarvestedPlants}" 
-                : s.TotalPlants.ToString();
-
-            GUI.Label(new Rect(x + colOffsets[0], y, 105, 15), label, labelStyle);
-            GUI.Label(new Rect(x + colOffsets[1], y, 45, 15), plantText, dataStyle);
-            GUI.Label(new Rect(x + colOffsets[2], y, 50, 15), s.TotalSeedCost.ToString("F1"), dataStyle);
-            GUI.Label(new Rect(x + colOffsets[3], y, 55, 15), s.TotalRevenue.ToString("F1"), dataStyle);
-            GUI.Label(new Rect(x + colOffsets[4], y, 55, 15), s.TotalWeightKg.ToString("F1"), dataStyle);
-            
-            GUI.Label(new Rect(x + colOffsets[5], y, 50, 15), profitToShow.ToString("F1"), theme.GetProfitStyle(profitToShow));
-            
+            string plantText = s.HarvestedPlants > 0 ? $"{s.TotalPlants}+{s.HarvestedPlants}" : s.TotalPlants.ToString();
             float roi = (s.TotalSeedCost > 0) ? (profitToShow / s.TotalSeedCost) * 100f : 0f;
-            GUI.Label(new Rect(x + colOffsets[6], y, 45, 15), roi.ToString("F0") + "%", theme.GetProfitStyle(roi));
-            GUI.Label(new Rect(x + colOffsets[7], y, 40, 15), s.AvgSoilCompatibility.ToString("F0") + "%", theme.GetProfitStyle(s.AvgSoilCompatibility - 50f));
+
+            string[] values = {
+                label,
+                plantText,
+                s.TotalSeedCost.ToString("F1"),
+                s.TotalRevenue.ToString("F1"),
+                s.TotalWeightKg.ToString("F1"),
+                profitToShow.ToString("F1"),
+                roi.ToString("F0") + "%",
+                s.AvgSoilCompatibility.ToString("F0") + "%"
+            };
+
+            GUIStyle[] styles = {
+                labelStyle,
+                dataStyle,
+                dataStyle,
+                dataStyle,
+                dataStyle,
+                theme.GetProfitStyle(profitToShow),
+                theme.GetProfitStyle(roi),
+                theme.GetProfitStyle(s.AvgSoilCompatibility - 50f)
+            };
+
+            UIDrawUtils.DrawRow(x, y, colOffsets, values, styles, colWidth: 105f);
         }
 
         private void DrawOperationalBreakdown(float x, float y, CropStats totals, UITheme theme)
