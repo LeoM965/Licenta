@@ -12,6 +12,7 @@ namespace Weather.Services
         public WeatherType CurrentWeather { get; private set; }
         public float CurrentTemperature { get; private set; }
         public WeatherImpact CurrentImpact { get; private set; }
+        public WeatherType? ForcedWeather { get; set; }
 
         public void SetClimate(ClimateProfile profile) => activeClimate = profile;
 
@@ -19,7 +20,7 @@ namespace Weather.Services
         {
             if (activeClimate == null) return;
 
-            if (!initialized || UnityEngine.Random.value > activeClimate.persistenceFactor)
+            if (!initialized || UnityEngine.Random.value > activeClimate.persistenceFactor || ForcedWeather.HasValue)
             {
                 CurrentWeather = RollNewWeather();
                 CurrentImpact = WeatherImpact.Get(CurrentWeather);
@@ -31,18 +32,20 @@ namespace Weather.Services
 
         private WeatherType RollNewWeather()
         {
+            if (ForcedWeather.HasValue) return ForcedWeather.Value;
+
             float total = activeClimate.GetTotalWeight();
             if (total <= 0) return WeatherType.Sunny;
 
             float roll = UnityEngine.Random.Range(0f, total);
             float cumulative = 0f;
 
-            foreach (WeatherType type in Enum.GetValues(typeof(WeatherType)))
+            foreach (WeatherType type in WeatherTypes.All)
             {
                 cumulative += activeClimate.GetWeight(type);
                 if (roll < cumulative) return type;
             }
-
+ 
             return WeatherType.Sunny;
         }
 

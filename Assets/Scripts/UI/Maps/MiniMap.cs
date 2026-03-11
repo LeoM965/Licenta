@@ -2,7 +2,9 @@ using UnityEngine;
 public class MiniMap : MonoBehaviour
 {
     [Header("Configuration")]
-    [SerializeField] private MapConfig config = new MapConfig();
+    [SerializeField] MiniMapConfig config = new MiniMapConfig();
+    [SerializeField] UITheme theme;
+    [SerializeField] MapColors mapColors;
     private Terrain terrain;
     private MapData data;
     private GUIStyle headerStyle;
@@ -54,8 +56,8 @@ public class MiniMap : MonoBehaviour
     private void DrawBackground(Rect mapRect, Rect headerRect)
     {
         MapHelper.DrawShadow(mapRect, 4);
-        MapHelper.DrawBox(mapRect, MapColors.Background);
-        MapHelper.DrawBox(headerRect, MapColors.HeaderBackground);
+        MapHelper.DrawBox(mapRect, mapColors.backgroundColor);
+        MapHelper.DrawBox(headerRect, mapColors.headerBackgroundColor);
         GUI.Label(headerRect, "MINIMAP", headerStyle);
     }
     private void DrawContent(Rect mapRect, Event e)
@@ -67,18 +69,18 @@ public class MiniMap : MonoBehaviour
     }
     private void DrawBorders(Rect mapRect, Rect headerRect)
     {
-        MapHelper.DrawBorder(mapRect, MapColors.Border, config.borderWidth);
-        MapHelper.DrawBorder(headerRect, MapColors.Border, 2);
+        MapHelper.DrawBorder(mapRect, mapColors.borderColor, config.borderWidth);
+        MapHelper.DrawBorder(headerRect, mapColors.borderColor, 2);
     }
     private void DrawGrid(Rect m)
     {
-        GUI.color = MapColors.Grid;
+        GUI.color = mapColors.gridColor;
         float centerX = m.x + m.width * 0.5f - 1;
-        GUI.DrawTexture(new Rect(centerX, m.y, 2, m.height), MapHelper.Tex);
+        GUI.DrawTexture(new Rect(centerX, m.y, 2, m.height), MapHelper.WhiteTexture);
         for (int i = 1; i <= config.gridLines; i++)
         {
             float yPos = m.y + m.height * i / (config.gridLines + 1);
-            GUI.DrawTexture(new Rect(m.x, yPos, m.width, 1), MapHelper.Tex);
+            GUI.DrawTexture(new Rect(m.x, yPos, m.width, 1), MapHelper.WhiteTexture);
         }
         GUI.color = Color.white;
     }
@@ -90,7 +92,7 @@ public class MiniMap : MonoBehaviour
         {
             if (data.zones[i] == null)
                 continue;
-            Color zoneColor = MapColors.GetZoneColor(i);
+            Color zoneColor = mapColors.GetZoneColor(i);
             MiniMapRenderer.DrawZone(m, data.zones[i].startXZ, data.zones[i].endXZ, data.inverseX, data.inverseZ, zoneColor);
         }
     }
@@ -98,7 +100,7 @@ public class MiniMap : MonoBehaviour
     {
         for (int i = 0; i < data.buildings.Count; i++)
         {
-            MiniMapRenderer.DrawBuilding(m, data.buildings[i], data.terrainPosition, data.inverseX, data.inverseZ, MapColors.Building, e);
+            MiniMapRenderer.DrawBuilding(m, data.buildings[i], data.terrainPosition, data.inverseX, data.inverseZ, mapColors.buildingColor, e);
         }
     }
     private void DrawRobots(Rect m, Event e)
@@ -107,7 +109,7 @@ public class MiniMap : MonoBehaviour
         {
             if (data.robots[i] == null)
                 continue;
-            Color robotColor = MapColors.GetRobotColor(data.robots[i].name);
+            Color robotColor = mapColors.GetRobotColor(data.robots[i].name);
             bool isSelected = (i == data.selectedRobotIndex);
             bool clicked = MiniMapRenderer.DrawRobot(
                 m,

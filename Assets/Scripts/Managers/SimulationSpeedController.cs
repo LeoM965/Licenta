@@ -3,14 +3,34 @@ using System.Collections;
 
 public class SimulationSpeedController : MonoBehaviour
 {
-    [SerializeField] private float[] speeds = { 0f, 1f, 5f, 20f, 100f };
+    public static SimulationSpeedController Instance;
+
+    [SerializeField] private float[] speeds = { 0f, 1f, 2f, 5f, 10f };
     [SerializeField] private float boostMultiplier = 5f;
-    
+
     private int currentIndex = 1;
     private bool isBoostActive;
     private bool isSkipping;
+    private bool isPausedInternally;
 
-    private void Start() => SetSpeed(currentIndex);
+    public float[] Speeds => speeds;
+    public int CurrentIndex => currentIndex;
+    public bool IsBoostActive => isBoostActive;
+    public bool IsSkipping => isSkipping;
+    public float BoostMultiplier => boostMultiplier;
+    public float FairnessMultiplier => isSkipping ? 10f : 1f;
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+    }
+
+    private void Start()
+    {
+        if (GetComponent<SimulationSpeedUI>() == null)
+            gameObject.AddComponent<SimulationSpeedUI>();
+        SetSpeed(currentIndex);
+    }
 
     public void SetSpeed(int index)
     {
@@ -26,36 +46,33 @@ public class SimulationSpeedController : MonoBehaviour
         UpdateSimulationTime();
     }
 
-    private void UpdateSimulationTime()
+    public void SetPaused(bool paused)
     {
-        float baseScale = speeds[currentIndex];
-        float multiplier = 1f;
+        isPausedInternally = paused;
+        UpdateSimulationTime();
+    }
 
-        if (isBoostActive)
+    public void SkipDay()
+    {
+        if (!isSkipping) StartCoroutine(SkipDayGradual());
+    }
+
+    public void UpdateSimulationTime()
+    {
+        if (isPausedInternally)
         {
-            if (baseScale > 0)
-            {
-                multiplier = boostMultiplier;
-            }
+            Time.timeScale = 0f;
+            return;
         }
 
-        Time.timeScale = baseScale * multiplier;
-        
-        if (Time.timeScale > 1f)
-        {
-            Time.fixedDeltaTime = 0.02f * Mathf.Lerp(1f, Time.timeScale, 0.5f);
-        }
-        else
-        {
-            float stepMultiplier = 0f;
-            if (Time.timeScale > 0)
-            {
-                stepMultiplier = 1f;
-            }
-            Time.fixedDeltaTime = 0.02f * stepMultiplier;
-        }
-            
-        Time.fixedDeltaTime = Mathf.Min(Time.fixedDeltaTime, 0.1f);
+        float scale = speeds[currentIndex];
+        if (isBoostActive && scale > 0f)
+            scale *= boostMultiplier;
+
+        Time.timeScale = scale;
+
+        float fixedStep = scale > 1f ? 0.02f * Mathf.Lerp(1f, scale, 0.4f) : 0.02f;
+        Time.fixedDeltaTime = Mathf.Min(fixedStep, 0.1f);
     }
 
     private IEnumerator SkipDayGradual()
@@ -63,7 +80,6 @@ public class SimulationSpeedController : MonoBehaviour
         if (TimeManager.Instance == null) yield break;
 
         isSkipping = true;
-
         float realDuration = 3f;
         float elapsed = 0f;
         float totalHours = 24f;
@@ -74,13 +90,12 @@ public class SimulationSpeedController : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             float target = Mathf.Clamp01(elapsed / realDuration) * totalHours;
             float chunk = target - hoursAdvanced;
-            
+
             if (chunk > 0f)
             {
                 TimeManager.Instance.AdvanceTime(chunk);
                 hoursAdvanced = target;
             }
-
             yield return null;
         }
 
@@ -90,100 +105,17 @@ public class SimulationSpeedController : MonoBehaviour
         isSkipping = false;
     }
 
-    private void OnGUI()
-    {
-        GUILayout.BeginArea(new Rect(10, 65, 250, 100));
-        GUILayout.BeginVertical("box");
-        
-        GUILayout.BeginHorizontal();
-        for (int i = 0; i < speeds.Length; i++)
-        {
-            if (currentIndex == i)
-            {
-                GUI.backgroundColor = Color.green;
-            }
-            else
-            {
-                GUI.backgroundColor = Color.white;
-            }
-
-            if (GUILayout.Button(GetLabel(i), GUILayout.Width(35), GUILayout.Height(25)))
-            {
-                SetSpeed(i);
-            }
-        }
-        
-        if (isBoostActive)
-        {
-            GUI.backgroundColor = Color.cyan;
-        }
-        else
-        {
-            GUI.backgroundColor = Color.white;
-        }
-
-        if (GUILayout.Button("x" + boostMultiplier, GUILayout.Width(45), GUILayout.Height(25)))
-        {
-            ToggleBoost();
-        }
-        GUILayout.EndHorizontal();
-
-        GUI.backgroundColor = Color.white;
-        
-        string statusText = isSkipping ? "SKIPPING..." : (Time.timeScale > 0 ? "Speed: " + Time.timeScale + "x" : "PAUSED");
-
-        GUIStyle statusStyle = new GUIStyle(GUI.skin.label);
-        statusStyle.richText = true;
-        statusStyle.alignment = TextAnchor.MiddleCenter;
-        
-        GUILayout.Label("<b>" + statusText + "</b>", statusStyle);
-
-        GUILayout.Space(5);
-        GUI.enabled = !isSkipping;
-        if (GUILayout.Button(isSkipping ? "Simulating..." : "Skip Day", GUILayout.Height(25)))
-        {
-            StartCoroutine(SkipDayGradual());
-        }
-        GUI.enabled = true;
-
-        GUILayout.EndVertical();
-        GUILayout.EndArea();
-    }
-
-    private string GetLabel(int i)
-    {
-        float val = speeds[i];
-        if (val == 0)
-        {
-            return "||";
-        }
-        if (val == 1)
-        {
-            return ">";
-        }
-        return val.ToString();
-    }
-
     private void Update()
     {
         if (isSkipping) return;
-        
+
         for (int i = 0; i < speeds.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i - 1))
-            {
                 SetSpeed(i);
-            }
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            SetSpeed(0);
-        }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            ToggleBoost();
-        }
+        if (Input.GetKeyDown(KeyCode.P)) SetSpeed(0);
+        if (Input.GetKeyDown(KeyCode.B)) ToggleBoost();
     }
 }

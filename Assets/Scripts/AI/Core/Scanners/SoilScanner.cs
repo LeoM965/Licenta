@@ -6,16 +6,10 @@ using Sensors.Services;
 
 namespace AI.Core.Scanners
 {
-    public class SoilScanner : ITaskScanner
+    [CreateAssetMenu(fileName = "SoilScanner", menuName = "AI/Scanners/Soil Scanner")]
+    public class SoilScanner : BaseScanner
     {
-        private readonly FenceZone[] zones;
-
-        public SoilScanner(FenceZone[] zones)
-        {
-            this.zones = zones;
-        }
-
-        public void Scan(List<RobotTask> tasks)
+        public override void Scan(List<RobotTask> tasks, FenceZone[] zones)
         {
             if (ParcelCache.Instance == null) return;
 
@@ -27,35 +21,40 @@ namespace AI.Core.Scanners
                 SoilAnalysis analysis = parcel.LatestAnalysis;
                 if (analysis.HasAlerts)
                 {
-                    int zoneIdx = GetOrCreateZoneIndex(parcel);
+                    int zoneIdx = GetOrCreateZoneIndex(parcel, zones);
                     if (zoneIdx >= 0)
                     {
-                        TaskType type = GetTaskType(analysis);
-                        tasks.Add(new RobotTask(parcel.transform, type, analysis.qualityScore));
+                        RobotTask task = CreateTask(parcel, analysis);
+                        tasks.Add(task);
                         parcel.isScheduledForTask = true;
                     }
                 }
             }
         }
 
-        private int GetOrCreateZoneIndex(EnvironmentalSensor parcel)
+        private RobotTask CreateTask(EnvironmentalSensor parcel, SoilAnalysis analysis)
         {
-            if (parcel.zoneIndex != -1) return parcel.zoneIndex;
-
-            FenceZone zone = BoundsHelper.FindZoneContaining(parcel.transform.position, zones);
-            if (zone != null)
+            if (analysis.requiresIrrigation)
             {
-                parcel.zoneIndex = System.Array.IndexOf(zones, zone);
+                float gain = analysis.moistureDeficit * 0.5f;
+                float cost = analysis.moistureDeficit * 0.05f;
+                return new IrrigationTask(parcel.transform, gain, cost);
             }
-            return parcel.zoneIndex;
-        }
-
-        private TaskType GetTaskType(SoilAnalysis analysis)
-        {
-            if (analysis.requiresIrrigation) return TaskType.Irrigate;
-            if (analysis.requiresFertilization) return TaskType.Fertilize;
-            if (analysis.requiresLiming) return TaskType.Lime;
-            return TaskType.Scout;
+            if (analysis.requiresFertilization)
+            {
+                float totalDeficit = analysis.nitrogenDeficit + analysis.phosphorusDeficit + analysis.potassiumDeficit;
+                float gain = totalDeficit * 1.5f;
+                float cost = totalDeficit * 1.2f;
+                return new FertilizationTask(parcel.transform, gain, cost);
+            }
+            if (analysis.requiresLiming)
+            {
+                float gain = 10f; // Simplified fixed gain for pH correction
+                float cost = 3f;
+                return new LimingTask(parcel.transform, gain, cost);
+            }
+            
+            return new ScoutTask(parcel.transform, 5f);
         }
     }
 }

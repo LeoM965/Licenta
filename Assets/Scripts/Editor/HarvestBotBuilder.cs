@@ -68,7 +68,6 @@ public class HarvestBotBuilder : EditorWindow
         CreateWheel("WBR", baseGO.transform, V3( 0.24f, 0.055f, -0.16f), rubber, darkSilver);
 
         // ─────────────── ARM MOUNTING ───────────────
-        // Arm platform sits on top of the base
         float armX = 0.10f;
         CreateCylinder("ArmPlatform",   baseGO.transform, V3(armX, 0.36f, 0),  V3(0.13f, 0.025f, 0.13f), darkSilver);
         CreateCylinder("J1_Housing",    baseGO.transform, V3(armX, 0.385f, 0), V3(0.11f, 0.06f, 0.11f),  blue);
@@ -76,7 +75,6 @@ public class HarvestBotBuilder : EditorWindow
         CreateCylinder("J2_Motor",      baseGO.transform, V3(armX, 0.495f, 0), V3(0.10f, 0.065f, 0.10f), blue, Quaternion.Euler(90, 0, 0));
 
         // ─────────────── UPPER ARM ───────────────
-        // Pivot at J2 motor position, tilted -20 degrees
         GameObject upperArm = Child("UpperArm", baseGO.transform, V3(armX, 0.495f, 0));
         upperArm.transform.localRotation = Quaternion.Euler(0, 0, -20f);
 
@@ -86,7 +84,6 @@ public class HarvestBotBuilder : EditorWindow
         CreateCylinder("J3_Motor",        upperArm.transform, V3(0, 0.41f, 0),  V3(0.085f, 0.055f, 0.085f),blue, Quaternion.Euler(90, 0, 0));
 
         // ─────────────── FOREARM ───────────────
-        // Pivot at J3 motor, tilted 70 degrees
         GameObject forearm = Child("Forearm", upperArm.transform, V3(0, 0.41f, 0));
         forearm.transform.localRotation = Quaternion.Euler(0, 0, 70f);
 
@@ -130,17 +127,20 @@ public class HarvestBotBuilder : EditorWindow
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionY;
 
         BoxCollider col = root.AddComponent<BoxCollider>();
-        // Adjusted to match AgBot clearance: AgBot bottom is ~0.28, HarvestBot was 0.125
-        // Raising center to 0.45 local (1.125 world) with size 0.5 (1.25 world) -> bottom at 0.5 world
         col.center = V3(0, 0.45f, 0); 
         col.size = V3(0.6f, 0.5f, 0.45f);
 
         // ─────────────── COMPONENTS ───────────────
-        RobotMovement mov = root.AddComponent<RobotMovement>();
-        mov.speed = 5f;
-        mov.rotationSpeed = 120f;
-        mov.heightSpeed = 40f;
-        // Set wheels via reflection
+        root.AddComponent<RobotMovement>();
+        
+        var motor = root.GetComponent<Robots.Components.Movement.RobotMotor>();
+        if (motor != null)
+        {
+            motor.speed = 5f;
+            motor.rotationSpeed = 120f;
+            motor.heightSpeed = 40f;
+        }
+        
         Transform[] wheelTransforms = {
             baseGO.transform.Find("WFL"),
             baseGO.transform.Find("WFR"),
@@ -148,9 +148,10 @@ public class HarvestBotBuilder : EditorWindow
             baseGO.transform.Find("WBR")
         };
         var field = typeof(RobotMovement).GetField("wheels", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field != null) field.SetValue(mov, wheelTransforms);
+        if (field != null) field.SetValue(root.GetComponent<RobotMovement>(), wheelTransforms);
 
         root.AddComponent<RobotEnergy>();
+        root.AddComponent<RobotLifecycle>();
         root.AddComponent<BatteryBarUI>();
         root.AddComponent<CropHarvester>();
 

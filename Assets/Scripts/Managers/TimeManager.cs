@@ -13,43 +13,7 @@ public class TimeManager : MonoBehaviour
     [Header("Current State")]
     public int currentDay = 1;
     public float timeOfDay = 8f; 
-    
-    [Header("Atmosphere Settings")]
-    [SerializeField] private Material sunriseSkybox;
-    [SerializeField] private Material sunsetSkybox;
-    [SerializeField] private Material nightSkybox;
-
-    [SerializeField] private float sunriseStart = 5f;
-    [SerializeField] private float sunrisePeak = 6.5f;
-    [SerializeField] private float sunriseEnd = 8f;
-    
-    [SerializeField] private float sunsetStart = 17f;
-    [SerializeField] private float sunsetPeak = 18.5f;
-    [SerializeField] private float sunsetEnd = 20f;
-
-    private void UpdateEnvironment(float time)
-    {
-        Material targetSky = null;
-
-        if (time >= sunriseStart && time < sunriseEnd)
-        {
-            targetSky = sunriseSkybox;
-        }
-        else if (time >= sunsetStart && time < sunsetEnd)
-        {
-            targetSky = sunsetSkybox;
-        }
-        else if (time >= sunsetEnd || time < sunriseStart)
-        {
-            targetSky = nightSkybox;
-        }
-
-        if (targetSky != null && RenderSettings.skybox != targetSky)
-        {
-            RenderSettings.skybox = targetSky;
-            DynamicGI.UpdateEnvironment();
-        }
-    }
+    public float TotalSimulatedHours => (currentDay - 1) * 24f + timeOfDay;
     
     public event Action<int> OnDayChanged;
     public event Action<float> OnHourChanged;
@@ -69,8 +33,6 @@ public class TimeManager : MonoBehaviour
         secondsPerMeter = 1f / speedMps;
         
         Debug.Log($"[TimeManager] Calibrated: 1 meter = {secondsPerMeter:F2} simulated seconds.");
-
-        UpdateEnvironment(timeOfDay);
     }
 
     public void RegisterRobot()
@@ -116,8 +78,6 @@ public class TimeManager : MonoBehaviour
             totalDaysPassed++;
             dayChanged = true;
         }
-
-        UpdateEnvironment(timeOfDay);
 
         int newHour = Mathf.FloorToInt(timeOfDay);
         if (newHour != oldHour)

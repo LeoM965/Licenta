@@ -23,7 +23,7 @@ public class ParcelNavigator : MonoBehaviour
     void OnGUI()
     {
         if (!visible) return;
-        var t = theme != null ? theme : UITheme.Default;
+        var t = theme;
         float h = messageTimer > 0 ? 90 : 70;
         Rect panel = new Rect(Screen.width / 2 - 110, 10, 220, h);
         t.DrawPanel(panel);

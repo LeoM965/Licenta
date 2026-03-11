@@ -15,15 +15,13 @@ namespace Sensors.Services
                 }
             }
 
-            // Simple safe fallback if asset is missing or type not found. 
-            // Better to have one minimal fallback here than duplication.
             return new SoilComposition
             {
-                moisture = 45f,
+                moisture = 50f,
                 pH = 6.5f,
-                nitrogen = 80f,
+                nitrogen = 350f,
                 phosphorus = 20f,
-                potassium = 180f
+                potassium = 220f
             };
         }
     }

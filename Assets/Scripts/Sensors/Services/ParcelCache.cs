@@ -7,8 +7,8 @@ public class ParcelCache : MonoBehaviour
     private static ParcelCache instance;
     private static bool isQuitting;
     private Dictionary<int, EnvironmentalSensor> cache = new Dictionary<int, EnvironmentalSensor>();
-    private List<EnvironmentalSensor> _cachedList = new List<EnvironmentalSensor>();
-    private bool _cacheDirty = true;
+    private List<EnvironmentalSensor> cachedList = new List<EnvironmentalSensor>();
+    private bool isCacheDirty = true;
     
     public static bool HasInstance => instance != null && !isQuitting;
     
@@ -49,7 +49,7 @@ public class ParcelCache : MonoBehaviour
         if (!cache.ContainsKey(id))
         {
             cache.Add(id, parcel);
-            _cacheDirty = true;
+            isCacheDirty = true;
         }
     }
 
@@ -58,7 +58,7 @@ public class ParcelCache : MonoBehaviour
         if (parcel == null) return;
         if (cache.Remove(parcel.GetInstanceID()))
         {
-            _cacheDirty = true;
+            isCacheDirty = true;
         }
     }
 
@@ -71,13 +71,13 @@ public class ParcelCache : MonoBehaviour
 
     public List<EnvironmentalSensor> GetAll()
     {
-        if (_cacheDirty)
+        if (isCacheDirty)
         {
-            _cachedList.Clear();
-            _cachedList.AddRange(cache.Values);
-            _cacheDirty = false;
+            cachedList.Clear();
+            cachedList.AddRange(cache.Values);
+            isCacheDirty = false;
         }
-        return _cachedList;
+        return cachedList;
     }
 
     public IEnumerable<EnvironmentalSensor> ParcelsIterator => cache.Values;

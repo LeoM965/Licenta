@@ -30,6 +30,12 @@ namespace Sensors.Components
 
         public SoilAnalysis LatestAnalysis => latestAnalysis;
 
+        // Accumulated harvest stats (persist after plants are destroyed)
+        public int harvestedCount { get; private set; }
+        public float harvestedWeightKg { get; private set; }
+        public float harvestedRevenue { get; private set; }
+        public float harvestedSeedCost { get; private set; }
+
         public SoilSettings Settings
         {
             get
@@ -79,10 +85,17 @@ namespace Sensors.Components
                 ParcelCache.Instance.Unregister(this);
         }
 
+        public void RecordHarvest(float weightKg, float revenue, float seedCost)
+        {
+            harvestedCount++;
+            harvestedWeightKg += weightKg;
+            harvestedRevenue += revenue;
+            harvestedSeedCost += seedCost;
+        }
+
         public void RemoveCrop(CropGrowth crop)
         {
-            if (activeCrops.Remove(crop) && activeCrops.Count == 0)
-                plantedVarietyName = null;
+            activeCrops.Remove(crop);
         }
     }
 }

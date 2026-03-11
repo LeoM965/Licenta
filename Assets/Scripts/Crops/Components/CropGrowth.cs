@@ -2,7 +2,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(CropVisualScaling))]
 [RequireComponent(typeof(CropHarvestVisuals))]
-public class CropGrowth : MonoBehaviour, IGrowable
+public class CropGrowth : MonoBehaviour, ICropHandler
 {
     [Header("Configuration")]
     public CropSettings settings;
@@ -18,6 +18,7 @@ public class CropGrowth : MonoBehaviour, IGrowable
     public bool IsBeingHarvested => state.isBeingHarvested;
     public CropStage CurrentStage => state.stage;
     public float Progress => state.progress;
+    public float PurchasePrice => state.purchasePrice;
 
     private void Awake()
     {
@@ -38,9 +39,7 @@ public class CropGrowth : MonoBehaviour, IGrowable
         {
             state.initialized = true;
             ResetGrowth();
-            return;
         }
-        if (state.growthTime > 0) ResetGrowth();
     }
 
     private void OnDisable()
@@ -48,10 +47,11 @@ public class CropGrowth : MonoBehaviour, IGrowable
         if (CropManager.Instance) CropManager.Instance.UnregisterCrop(this);
     }
 
-    public void Init(float time)
+    public void Initialize(float growthTime, float seedCost)
     {
-        if (time <= 0) return;
-        state.growthTime = time;
+        if (growthTime <= 0) return;
+        state.growthTime = growthTime;
+        state.purchasePrice = seedCost;
         ResetGrowth();
     }
 
@@ -59,19 +59,30 @@ public class CropGrowth : MonoBehaviour, IGrowable
     {
         state.elapsed = 0f;
         state.progress = 0f;
+        state.lastUpdateHours = -1f;
         state.stage = CropStage.Seed;
         transform.localScale = state.baseScale * scaler.GetInitialScale();
     }
 
-    public void ManualUpdate(float deltaTime)
+    public void ManualUpdate(float currentTotalHours)
     {
         if (state.isBeingHarvested || state.progress >= 1f) return;
+
+        // Calculate actual delta hours since this specific crop was last updated
+        float deltaHours = 0f;
+        if (state.lastUpdateHours >= 0)
+        {
+            deltaHours = currentTotalHours - state.lastUpdateHours;
+        }
+        state.lastUpdateHours = currentTotalHours;
+
+        if (deltaHours <= 0) return;
 
         float weatherMultiplier = Weather.Components.WeatherSystem.Instance != null
             ? Weather.Components.WeatherSystem.Instance.GetCropGrowthMultiplier()
             : 1f;
 
-        state.elapsed += deltaTime * weatherMultiplier;
+        state.elapsed += deltaHours * weatherMultiplier;
         state.progress = Mathf.Clamp01(state.elapsed / state.growthTime);
 
         CropStage newStage = scaler.DetermineStage(state.progress);

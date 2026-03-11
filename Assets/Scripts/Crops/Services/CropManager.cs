@@ -11,7 +11,6 @@ public class CropManager : MonoBehaviour
     private readonly List<CropGrowth> activeCrops = new List<CropGrowth>(4096);
     private readonly Dictionary<CropGrowth, int> cropIndices = new Dictionary<CropGrowth, int>();
     private int lastUpdateIndex;
-    private float lastSimHours = -1f;
 
     private void Awake()
     {
@@ -93,27 +92,14 @@ public class CropManager : MonoBehaviour
         int count = activeCrops.Count;
         if (count == 0 || TimeManager.Instance == null) return;
 
-        // Track simulated time from TimeManager (in hours)
-        float currentSimHours = (TimeManager.Instance.currentDay - 1) * 24f + TimeManager.Instance.timeOfDay;
-        
-        if (lastSimHours < 0f)
-        {
-            lastSimHours = currentSimHours;
-            return;
-        }
-
-        float deltaHours = currentSimHours - lastSimHours;
-        if (deltaHours <= 0f) { lastSimHours = currentSimHours; return; }
-        
-        lastSimHours = currentSimHours;
-
+        float currentSimHours = TimeManager.Instance.TotalSimulatedHours;
         int slice = Mathf.Min(count, updatesPerFrame);
         
         for (int i = 0; i < slice; i++)
         {
             lastUpdateIndex = (lastUpdateIndex + 1) % count;
             var crop = activeCrops[lastUpdateIndex];
-            if (crop != null) crop.ManualUpdate(deltaHours);
+            if (crop != null) crop.ManualUpdate(currentSimHours);
         }
     }
 }

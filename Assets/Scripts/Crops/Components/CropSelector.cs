@@ -20,7 +20,11 @@ public static class CropSelector
         for (int i = 0; i < db.crops.Length; i++)
         {
             CropData crop = db.crops[i];
-            float score = crop.requirements != null ? crop.requirements.CalculateTotalScore(soil) : 0f;
+            float score = 0f;
+            if (crop.requirements != null)
+            {
+                score = crop.requirements.CalculateTotalScore(soil);
+            }
             alternatives.Add(new DecisionAlternative(crop.name, score));
             
             if (score > bestScore)

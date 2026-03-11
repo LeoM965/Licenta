@@ -1,0 +1,126 @@
+using UnityEngine;
+using Settings;
+
+public class RobotStats
+{
+    public float distance;
+    public float time;
+    public float speed;
+    public string type;
+    public string model;
+    public float purchasePrice;
+    public float maintenanceRate;
+    public int utilityLifeYears;
+    public float residualValueRate;
+    public float maintenanceCost;
+    public float depreciationCost;
+    public float energykWh;
+    public float revenueGenerated;
+    public string zone = "?";
+    public bool IsCurrentlyActive { get; set; }
+    
+    public static float EnergyPrice => SimulationSettings.EnergyPrice;
+    public float TotalCost => maintenanceCost + depreciationCost + (energykWh * EnergyPrice);
+    public float ROI 
+    {
+        get {
+            float basePrice = purchasePrice > 0 ? purchasePrice : 100000f; // Fallback if data missing
+            return ((revenueGenerated - TotalCost) / basePrice) * 100f;
+        }
+    }
+
+    public RobotStats(Transform robot)
+    {
+        type = DetectType(robot.name);
+
+        RobotDataEntry data = RobotDataLoader.FindByName(robot.name);
+        if (data != null)
+        {
+            purchasePrice = data.purchasePrice;
+            model = data.model;
+            maintenanceRate = data.maintenanceRate;
+            utilityLifeYears = data.utilityLifeYears;
+            residualValueRate = data.residualValueRate;
+        }
+        else
+        {
+            Debug.LogWarning($"[RobotStats] No data in RobotData.json for '{robot.name}'");
+        }
+
+        UpdateZone(robot.position); // Inițializăm zona la creare
+    }
+
+    public float AddMaintenance(float distMeters, float deltaHours)
+    {
+        float deltaKm = distMeters / 1000f;
+        float annualBudget = purchasePrice * maintenanceRate;
+        float costDist = (deltaKm * (annualBudget * 0.5f)) / 10000f;
+        float costTime = (deltaHours * (annualBudget * 0.5f)) / 1500f;
+        float added = costDist + costTime;
+
+        distance += distMeters;
+        maintenanceCost += added;
+
+        if (deltaHours > 0)
+            speed = distMeters / (deltaHours * 3600f);
+
+        return added;
+    }
+
+    public float AddDepreciation(float deltaHours)
+    {
+        if (deltaHours <= 0) return 0;
+
+        float annualDep = purchasePrice * (1f - residualValueRate);
+        float hourlyDep = annualDep / (utilityLifeYears * 365f * 24f); 
+        
+        float added = hourlyDep * deltaHours;
+        depreciationCost += added;
+        return added;
+    }
+
+    public void AddEnergy(float kWh)
+    {
+        energykWh += kWh;
+    }
+
+    public void AddRevenue(float amount)
+    {
+        revenueGenerated += amount;
+    }
+
+    public void UpdateZone(Vector3 pos)
+    {
+        float minDist = float.MaxValue;
+        var parcels = ParcelCache.Parcels;
+        if (parcels == null || parcels.Count == 0) return;
+
+        foreach (var p in parcels)
+        {
+            if (p == null) continue;
+            float d = Vector3.Distance(pos, p.transform.position);
+            if (d < minDist)
+            {
+                minDist = d;
+                zone = GetZoneFromName(p.name);
+            }
+        }
+    }
+
+    private string GetZoneFromName(string name)
+    {
+        int i = name.IndexOf('_');
+        if (i >= 0 && i + 1 < name.Length)
+            return name[i + 1].ToString().ToUpper();
+        return "?";
+    }
+
+    private static string DetectType(string name)
+    {
+        if (name.StartsWith("AgroBot")) return "AgroBot";
+        if (name.StartsWith("AgBot") || name.StartsWith("AqBot")) return "AgBot";
+        if (name.Contains("HarvestBot")) return "HarvestBot";
+        if (name.Contains("Hybrid")) return "AgBot";
+        return name;
+    }
+}

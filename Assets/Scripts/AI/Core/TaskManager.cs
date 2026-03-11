@@ -11,9 +11,9 @@ namespace AI.Core
         public static TaskManager Instance { get; private set; }
 
         [SerializeField] private float scanInterval = 5f;
+        [SerializeField] private List<BaseScanner> activeScanners = new List<BaseScanner>();
         
         private readonly Dictionary<int, MinHeap<RobotTask>> zoneHeaps = new Dictionary<int, MinHeap<RobotTask>>();
-        private readonly List<ITaskScanner> scanners = new List<ITaskScanner>();
         private FenceZone[] zones;
         private float scanTimer;
 
@@ -28,7 +28,6 @@ namespace AI.Core
         private void Start()
         {
             InitializeZones();
-            InitializeScanners();
         }
 
         private void InitializeZones()
@@ -40,13 +39,6 @@ namespace AI.Core
                 for (int i = 0; i < zones.Length; i++)
                     zoneHeaps[i] = new MinHeap<RobotTask>();
             }
-        }
-
-        private void InitializeScanners()
-        {
-            if (zones == null) return;
-            scanners.Add(new SoilScanner(zones));
-            scanners.Add(new HarvestScanner(zones));
         }
 
         private void Update()
@@ -61,11 +53,14 @@ namespace AI.Core
 
         private void ExecuteScanning()
         {
+            if (activeScanners == null || activeScanners.Count == 0) return;
+
             List<RobotTask> discoveredTasks = new List<RobotTask>();
             
-            foreach (var scanner in scanners)
+            foreach (var scanner in activeScanners)
             {
-                scanner.Scan(discoveredTasks);
+                if (scanner != null)
+                    scanner.Scan(discoveredTasks, zones);
             }
 
             foreach (var task in discoveredTasks)
@@ -79,7 +74,10 @@ namespace AI.Core
             int zoneIdx = GetTaskZoneIndex(task);
             if (zoneIdx >= 0 && zoneHeaps.ContainsKey(zoneIdx))
             {
-                zoneHeaps[zoneIdx].Enqueue(task, task.Priority);
+                // MinHeap uses smallest priority value first.
+                // We map high NetValue to low priority: Priority = 1000 - NetValue
+                float priority = 1000f - task.NetValue;
+                zoneHeaps[zoneIdx].Enqueue(task, priority);
             }
         }
 
@@ -119,6 +117,16 @@ namespace AI.Core
             return total;
         }
 
-        public void RegisterScanner(ITaskScanner scanner) => scanners.Add(scanner);
+        public void RegisterScanner(BaseScanner scanner)
+        {
+            if (scanner != null && !activeScanners.Contains(scanner))
+                activeScanners.Add(scanner);
+        }
+
+        public void UnregisterScanner(BaseScanner scanner)
+        {
+            if (activeScanners.Contains(scanner))
+                activeScanners.Remove(scanner);
+        }
     }
 }

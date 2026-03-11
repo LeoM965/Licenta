@@ -42,7 +42,7 @@ public class CropStatsPanel : MonoBehaviour
     void OnGUI()
     {
         if (!visible) return;
-        var t = theme != null ? theme : UITheme.Default;
+        var t = theme;
         int rows = 0;
         foreach (var z in zones.Values) rows += Mathf.Max(1, z.Count);
         Rect panel = new Rect(10, 300, 220, 60 + rows * 20 + zones.Count * 6);

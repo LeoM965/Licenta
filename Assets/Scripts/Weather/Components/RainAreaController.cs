@@ -17,17 +17,15 @@ public class RainAreaController : MonoBehaviour
 
     public void StartRain()
     {
-        if (rainSystem != null)
-        {
-            gameObject.SetActive(true);
-            rainSystem.Play();
-        }
+        if (rainSystem == null) return;
+        gameObject.SetActive(true);
+        rainSystem.Play();
     }
 
     public void StopRain()
     {
-        if (rainSystem != null)
-            rainSystem.Stop();
+        if (rainSystem == null) return;
+        rainSystem.Stop();
         gameObject.SetActive(false);
     }
 

@@ -21,6 +21,7 @@ namespace Weather.Components
         private AtmosphereRenderer renderer;
         private float lastSimHours = -1f;
 
+        public WeatherType? ForcedWeather => simulator?.ForcedWeather;
         public WeatherType CurrentWeather => simulator.CurrentWeather;
         public float CurrentTemperature => simulator.CurrentTemperature;
         public WeatherImpact CurrentImpact => simulator.CurrentImpact;
@@ -59,7 +60,8 @@ namespace Weather.Components
             WeatherProfile profile = GetProfile(simulator.CurrentWeather);
             if (profile == null) return;
 
-            renderer.Render(profile, Time.deltaTime);
+            float time = TimeManager.Instance != null ? TimeManager.Instance.timeOfDay : 12f;
+            renderer.Render(profile, time, Time.deltaTime);
 
             if (precipitation != null)
                 precipitation.UpdateEffects(simulator.CurrentWeather, 1.0f);
@@ -81,7 +83,7 @@ namespace Weather.Components
         {
             if (TimeManager.Instance == null || ActiveClimate == null) return;
 
-            float currentSimHours = (TimeManager.Instance.currentDay - 1) * 24f + TimeManager.Instance.timeOfDay;
+            float currentSimHours = TimeManager.Instance.TotalSimulatedHours;
             if (lastSimHours < 0f) { lastSimHours = currentSimHours; return; }
 
             float deltaHours = currentSimHours - lastSimHours;
@@ -93,11 +95,35 @@ namespace Weather.Components
 
         public float GetMovementPenalty()
         {
-            float seasonalBase = ActiveClimate != null ? ActiveClimate.movementMultiplier : 1.0f;
+            float seasonalBase = 1.0f;
+            if (ActiveClimate != null)
+            {
+                seasonalBase = ActiveClimate.movementMultiplier;
+            }
             return seasonalBase * simulator.CurrentImpact.movementSpeed;
         }
 
         public float GetCropGrowthMultiplier() => simulator.CurrentImpact.cropGrowth;
+
+        public void SetForcedWeather(WeatherType? type)
+        {
+            simulator.ForcedWeather = type;
+            if (TimeManager.Instance != null)
+                simulator.RerollWeather(TimeManager.Instance.timeOfDay);
+        }
+
+        public void CycleForcedWeather()
+        {
+            int currentIndex = -1;
+            if (simulator.ForcedWeather.HasValue)
+                currentIndex = System.Array.IndexOf(WeatherTypes.All, simulator.ForcedWeather.Value);
+
+            currentIndex++;
+            if (currentIndex >= WeatherTypes.All.Length)
+                SetForcedWeather(null);
+            else
+                SetForcedWeather(WeatherTypes.All[currentIndex]);
+        }
 
         private WeatherProfile GetProfile(WeatherType type) => weatherProfiles.Find(p => p.type == type);
     }

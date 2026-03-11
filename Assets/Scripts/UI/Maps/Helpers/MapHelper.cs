@@ -1,59 +1,66 @@
 using UnityEngine;
+
 public static class MapHelper
 {
-    private static Texture2D _tex;
-    public static Texture2D Tex
+    private static Texture2D whiteTextureInstance;
+    public static Texture2D WhiteTexture
     {
-        get
-        {
-            if (_tex == null)
-                _tex = Texture2D.whiteTexture;
-            return _tex;
+        get 
+        { 
+            if (whiteTextureInstance == null) whiteTextureInstance = Texture2D.whiteTexture;
+            return whiteTextureInstance; 
         }
     }
-    public static void DrawBox(Rect r, Color c)
+
+    public static void DrawBox(Rect rect, Color color) 
     {
-        GUI.color = c;
-        GUI.DrawTexture(r, Tex);
-        GUI.color = Color.white;
-    }
-    public static void DrawShadow(Rect r, float offset)
-    {
-        GUI.color = new Color(0, 0, 0, 0.4f);
-        GUI.DrawTexture(new Rect(r.x + offset, r.y + offset, r.width, r.height), Tex);
-        GUI.color = Color.white;
-    }
-    public static void DrawBorder(Rect r, Color c, int t)
-    {
-        GUI.color = c;
-        GUI.DrawTexture(new Rect(r.x, r.y, r.width, t), Tex);
-        GUI.DrawTexture(new Rect(r.x, r.yMax - t, r.width, t), Tex);
-        GUI.DrawTexture(new Rect(r.x, r.y, t, r.height), Tex);
-        GUI.DrawTexture(new Rect(r.xMax - t, r.y, t, r.height), Tex);
-        GUI.color = Color.white;
+        DrawRectWithSolidColor(rect, color);
     }
 
-    public static Vector2 WorldToMap(Vector3 worldPos, Vector3 terrainPos, float invX, float invZ, Rect map)
+    public static void DrawShadow(Rect rect, float offset)
     {
-        float x = map.x + (worldPos.x - terrainPos.x) * invX * map.width;
-        float y = map.y + (worldPos.z - terrainPos.z) * invZ * map.height;
+        DrawRectWithSolidColor(new Rect(rect.x + offset, rect.y + offset, rect.width, rect.height), new Color(0, 0, 0, 0.4f));
+    }
+
+    public static void DrawBorder(Rect rect, Color color, int thickness)
+    {
+        DrawRectWithSolidColor(new Rect(rect.x, rect.y, rect.width, thickness), color);
+        DrawRectWithSolidColor(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), color);
+        DrawRectWithSolidColor(new Rect(rect.x, rect.y, thickness, rect.height), color);
+        DrawRectWithSolidColor(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), color);
+    }
+
+    public static Vector2 WorldToMap(Vector3 worldPosition, Vector3 terrainPosition, float inverseWidth, float inverseHeight, Rect mapRect)
+    {
+        float x = mapRect.x + (worldPosition.x - terrainPosition.x) * inverseWidth * mapRect.width;
+        float y = mapRect.y + (worldPosition.z - terrainPosition.z) * inverseHeight * mapRect.height;
         return new Vector2(x, y);
     }
-    public static void DrawDot(Vector2 pos, float size, Color c)
+
+    public static void DrawDot(Vector2 position, float size, Color color)
     {
-        GUI.color = c;
-        GUI.DrawTexture(new Rect(pos.x - size * 0.5f, pos.y - size * 0.5f, size, size), Tex);
-        GUI.color = Color.white;
+        DrawRectWithSolidColor(new Rect(position.x - size * 0.5f, position.y - size * 0.5f, size, size), color);
     }
-    public static void DrawPulse(Vector2 pos, float size, Color c, float pulse)
+
+    public static void DrawPulse(Vector2 position, float size, Color color, float time)
     {
-        float a = (Mathf.Sin(pulse) + 1f) * 0.5f * 0.3f;
-        GUI.color = new Color(c.r, c.g, c.b, a);
-        GUI.DrawTexture(new Rect(pos.x - size, pos.y - size, size * 2, size * 2), Tex);
-        GUI.color = Color.white;
+        float alpha = (Mathf.Sin(time) + 1f) * 0.15f;
+        DrawRectWithSolidColor(new Rect(position.x - size, position.y - size, size * 2, size * 2), new Color(color.r, color.g, color.b, alpha));
     }
-    public static bool ClickedIn(Rect area, Event e)
+
+    public static bool ClickedIn(Rect area, Event inputEvent)
     {
-        return e.type == EventType.MouseDown && area.Contains(e.mousePosition);
+        return inputEvent.type == EventType.MouseDown && area.Contains(inputEvent.mousePosition);
+    }
+
+    private static void DrawRectWithSolidColor(Rect rect, Color color)
+    {
+        GUI.color = color;
+        GUI.DrawTexture(rect, WhiteTexture);
+        GUI.color = Color.white;
     }
 }
+
+
+
+

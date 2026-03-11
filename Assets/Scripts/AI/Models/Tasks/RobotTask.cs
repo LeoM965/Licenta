@@ -2,17 +2,18 @@ using UnityEngine;
 
 namespace AI.Core
 {
-    public class RobotTask
+    public abstract class RobotTask
     {
         public Transform Target { get; }
-        public TaskType Type { get; }
-        public float Priority { get; }
+        public float PotentialGain { get; protected set; }
+        public float ResourceCost { get; protected set; }
+        public float NetValue => PotentialGain - ResourceCost;
 
-        public RobotTask(Transform target, TaskType type = TaskType.Scout, float priority = 0)
+        protected RobotTask(Transform target, float gain = 0, float cost = 0)
         {
             Target = target;
-            Type = type;
-            Priority = priority;
+            PotentialGain = gain;
+            ResourceCost = cost;
         }
 
         public override bool Equals(object obj) => obj is RobotTask other && Target == other.Target;

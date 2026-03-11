@@ -1,27 +1,33 @@
 using UnityEngine;
-public static class MapColors
+
+[CreateAssetMenu(fileName = "MapColors", menuName = "Farm/Map Colors")]
+public class MapColors : ScriptableObject
 {
-    public static readonly Color Background = new Color(0.1f, 0.1f, 0.1f, 0.8f);
-    public static readonly Color HeaderBackground = new Color(0.2f, 0.2f, 0.2f, 0.9f);
-    public static readonly Color Border = new Color(0.8f, 0.8f, 0.8f, 1f);
-    public static readonly Color Grid = new Color(1f, 1f, 1f, 0.1f);
-    public static readonly Color Building = new Color(1f, 0.8f, 0.2f, 1f);
-    private static readonly Color[] ZoneColors = new Color[]
+    [Header("Main Colors")]
+    public Color backgroundColor;
+    public Color headerBackgroundColor;
+    public Color borderColor;
+    public Color gridColor;
+    public Color buildingColor;
+
+    [Header("Zones")]
+    public Color[] zoneColors;
+    public Color agBotColor;
+    public Color harvestBotColor;
+    public Color agroBotColor;
+    public Color defaultRobotColor;
+
+    public Color GetZoneColor(int index)
     {
-        new Color(0.2f, 0.8f, 0.2f, 0.3f),
-        new Color(0.8f, 0.2f, 0.2f, 0.3f),
-        new Color(0.2f, 0.2f, 0.8f, 0.3f),
-        new Color(0.8f, 0.8f, 0.2f, 0.3f)
-    };
-    public static Color GetZoneColor(int index)
-    {
-        return ZoneColors[index % ZoneColors.Length];
+        if (zoneColors == null || zoneColors.Length == 0) return Color.gray;
+        return zoneColors[index % zoneColors.Length];
     }
-    public static Color GetRobotColor(string name)
+
+    public Color GetRobotColor(string robotName)
     {
-        if (name.Contains("AgBot")) return new Color(0f, 1f, 0.2f); // Bright Green
-        if (name.Contains("HarvestBot")) return new Color(1f, 0.5f, 0f); // Orange
-        if (name.Contains("AgroBot")) return new Color(1f, 0.2f, 0.2f); // Red
-        return Color.cyan;
+        if (robotName.Contains("AgBot")) return agBotColor;
+        if (robotName.Contains("HarvestBot")) return harvestBotColor;
+        if (robotName.Contains("AgroBot")) return agroBotColor;
+        return defaultRobotColor;
     }
 }

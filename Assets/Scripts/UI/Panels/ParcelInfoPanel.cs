@@ -19,7 +19,7 @@ public class ParcelInfoPanel : MonoBehaviour
     void OnGUI()
     {
         if (selected == null || selected.composition == null) return;
-        t = theme != null ? theme : UITheme.Default;
+        t = theme;
         Rect panel = new Rect(10, Screen.height - 220, 200, 210);
         t.DrawPanel(panel);
         float y = panel.y + 8, x = panel.x + 8;

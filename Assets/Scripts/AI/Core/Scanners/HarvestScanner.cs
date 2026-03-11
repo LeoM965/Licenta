@@ -4,16 +4,10 @@ using Sensors.Components;
 
 namespace AI.Core.Scanners
 {
-    public class HarvestScanner : ITaskScanner
+    [CreateAssetMenu(fileName = "HarvestScanner", menuName = "AI/Scanners/Harvest Scanner")]
+    public class HarvestScanner : BaseScanner
     {
-        private readonly FenceZone[] zones;
-
-        public HarvestScanner(FenceZone[] zones)
-        {
-            this.zones = zones;
-        }
-
-        public void Scan(List<RobotTask> tasks)
+        public override void Scan(List<RobotTask> tasks, FenceZone[] zones)
         {
             if (ParcelCache.Instance == null) return;
 
@@ -25,11 +19,11 @@ namespace AI.Core.Scanners
                 int matureCount = GetMatureCropCount(parcel);
                 if (matureCount == 0) continue;
 
-                int zoneIdx = GetOrCreateZoneIndex(parcel);
+                int zoneIdx = GetOrCreateZoneIndex(parcel, zones);
                 if (zoneIdx >= 0)
                 {
-                    float priority = matureCount * 10f;
-                    tasks.Add(new RobotTask(parcel.transform, TaskType.Harvest, priority));
+                    float gain = matureCount * 25f; // Economic gain from harvesting
+                    tasks.Add(new HarvestTask(parcel.transform, gain));
                     parcel.isScheduledForTask = true;
                 }
             }
@@ -43,18 +37,6 @@ namespace AI.Core.Scanners
                 if (crop != null && crop.IsFullyGrown) count++;
             }
             return count;
-        }
-
-        private int GetOrCreateZoneIndex(EnvironmentalSensor parcel)
-        {
-            if (parcel.zoneIndex != -1) return parcel.zoneIndex;
-
-            FenceZone zone = BoundsHelper.FindZoneContaining(parcel.transform.position, zones);
-            if (zone != null)
-            {
-                parcel.zoneIndex = System.Array.IndexOf(zones, zone);
-            }
-            return parcel.zoneIndex;
         }
     }
 }
