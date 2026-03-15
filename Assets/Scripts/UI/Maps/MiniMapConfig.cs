@@ -1,4 +1,5 @@
 using UnityEngine;
+
 [System.Serializable]
 public class MiniMapConfig
 {
@@ -14,6 +15,7 @@ public class MiniMapConfig
     public int gridLines = 5;
     [Range(1, 20)]
     public float robotSize = 8f;
+
     public Rect GetMapRect()
     {
         float size = Screen.height * sizePercent * 0.01f;
@@ -21,6 +23,7 @@ public class MiniMapConfig
         float y = Screen.height - size - offsetY;
         return new Rect(x, y, size, size);
     }
+
     public Rect GetHeaderRect(Rect mapRect)
     {
         return new Rect(mapRect.x, mapRect.y - 20, mapRect.width, 20);

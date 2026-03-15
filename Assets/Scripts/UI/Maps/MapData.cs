@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+
 public class MapData
 {
     public FenceZone[] zones;
@@ -9,6 +10,7 @@ public class MapData
     public float inverseX;
     public float inverseZ;
     public int selectedRobotIndex = -1;
+
     public void Initialize(Terrain terrain)
     {
         if (terrain == null)
@@ -18,6 +20,7 @@ public class MapData
         if (size.x > 0) inverseX = 1f / size.x;
         if (size.z > 0) inverseZ = 1f / size.z;
     }
+
     public void LoadRobots(MultiRobotSpawner spawner)
     {
         if (spawner == null)
@@ -30,11 +33,13 @@ public class MapData
                 robots.Add(spawned[i].transform);
         }
     }
+
     public void LoadZones(FenceGenerator fence)
     {
         if (fence != null)
             zones = fence.zones;
     }
+
     public void LoadBuildings(BuildingSpawner spawner)
     {
         if (spawner != null)

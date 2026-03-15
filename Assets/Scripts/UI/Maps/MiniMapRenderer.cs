@@ -1,33 +1,29 @@
 using UnityEngine;
+
 public static class MiniMapRenderer
 {
-    public static void DrawZone(Rect map, Vector2 start, Vector2 end, float invX, float invZ, Color c)
+    public static void DrawZone(Rect mapRect, Vector2 start, Vector2 end, float inverseWidth, float inverseHeight, Color color)
     {
-        Vector2 min = new Vector2(Mathf.Min(start.x, end.x), Mathf.Min(start.y, end.y));
-        Vector2 max = new Vector2(Mathf.Max(start.x, end.x), Mathf.Max(start.y, end.y));
-        float w = (max.x - min.x) * invX * map.width;
-        float h = (max.y - min.y) * invZ * map.height;
-        float x = map.x + start.x * invX * map.width;
-        float y = map.y + start.y * invZ * map.height;
-        float x2 = map.x + end.x * invX * map.width;
-        float y2 = map.y + end.y * invZ * map.height;
+        float x = mapRect.x + start.x * inverseWidth * mapRect.width;
+        float y = mapRect.y + start.y * inverseHeight * mapRect.height;
+        float x2 = mapRect.x + end.x * inverseWidth * mapRect.width;
+        float y2 = mapRect.y + end.y * inverseHeight * mapRect.height;
         Rect r = new Rect(Mathf.Min(x, x2), Mathf.Min(y, y2), Mathf.Abs(x - x2), Mathf.Abs(y - y2));
-        MapHelper.DrawBox(r, c);
+        MapHelper.DrawBox(r, color);
     }
-    public static void DrawBuilding(Rect map, Building b, Vector3 terrainPos, float invX, float invZ, Color c, Event e)
+
+    public static void DrawBuilding(Rect mapRect, Building building, Vector3 terrainPos, float inverseWidth, float inverseHeight, Color color, Event guiEvent)
     {
-        Vector2 pos = MapHelper.WorldToMap(b.position, terrainPos, invX, invZ, map);
-        MapHelper.DrawDot(pos, 6, c);
-        if (MapHelper.ClickedIn(new Rect(pos.x - 5, pos.y - 5, 10, 10), e))
-        {
-        }
+        Vector2 pos = MapHelper.WorldToMap(building.position, terrainPos, inverseWidth, inverseHeight, mapRect);
+        MapHelper.DrawDot(pos, 6, color);
     }
-    public static bool DrawRobot(Rect map, Vector3 pos, Vector3 terrainPos, float invX, float invZ, Color c, float size, bool selected, float pulse, Event e)
+
+    public static bool DrawRobot(Rect mapRect, Vector3 position, Vector3 terrainPos, float inverseWidth, float inverseHeight, Color color, float size, bool isSelected, float pulseTime, Event guiEvent)
     {
-        Vector2 mapPos = MapHelper.WorldToMap(pos, terrainPos, invX, invZ, map);
-        if (selected)
-            MapHelper.DrawPulse(mapPos, size, c, pulse);
-        MapHelper.DrawDot(mapPos, size, c);
-        return MapHelper.ClickedIn(new Rect(mapPos.x - size, mapPos.y - size, size * 2, size * 2), e);
+        Vector2 mapPos = MapHelper.WorldToMap(position, terrainPos, inverseWidth, inverseHeight, mapRect);
+        if (isSelected)
+            MapHelper.DrawPulse(mapPos, size, color, pulseTime);
+        MapHelper.DrawDot(mapPos, size, color);
+        return MapHelper.ClickedIn(new Rect(mapPos.x - size, mapPos.y - size, size * 2, size * 2), guiEvent);
     }
 }
