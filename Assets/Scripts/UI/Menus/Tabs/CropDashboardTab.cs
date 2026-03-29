@@ -7,7 +7,7 @@ namespace UI.Menus.Tabs
 {
     public class CropDashboardTab : BaseDashboardTab
     {
-        private readonly float[] colOffsets = { 0, 110, 180, 260, 340, 420, 500, 570, 640 };
+        private readonly float[] colOffsets = { 0, 130, 200, 280, 360, 440, 520, 590, 660 };
 
         public override void DrawTab(float x, float y, UITheme theme)
         {
@@ -17,7 +17,7 @@ namespace UI.Menus.Tabs
         public void DrawTab(float x, float y, EconomicReport activeReport, CropData[] crops, UITheme theme)
         {
             // Buton Export Culturi
-            if (GUI.Button(new Rect(x + 530, y - 35, 150, 25), "EXPORT CROP DATA"))
+            if (GUI.Button(new Rect(x + 570, y - 35, 140, 25), "EXPORT CROP DATA"))
             {
                 if (EconomicsHistoryManager.Instance != null)
                     EconomicsHistoryManager.Instance.ExportCropsToCSV();
@@ -30,13 +30,13 @@ namespace UI.Menus.Tabs
             {
                 activeReport.AnalysisByVariety.TryGetValue(crop.name, out var stats);
                 DrawDataRowCustom(x, y, crop.name, stats, stats.NetProfit, theme, isTotalRow: false);
-                y += 17;
+                y += 22;
             }
 
-            UIDrawUtils.DrawHorizontalLine(x, y + 4, 700);
+            UIDrawUtils.DrawHorizontalLine(x, y + 4, 720);
             
             float cropOnlyProfit = activeReport.FarmTotals.TotalRevenue - activeReport.FarmTotals.TotalSeedCost;
-            DrawDataRowCustom(x, y + 12, "TOTAL CULTURI", activeReport.FarmTotals, cropOnlyProfit, theme, isTotalRow: true);
+            DrawDataRowCustom(x, y + 15, "TOTAL CULTURI", activeReport.FarmTotals, cropOnlyProfit, theme, isTotalRow: true);
             
             y += 55;
             DrawOperationalBreakdown(x, y, activeReport.FarmTotals, theme);
@@ -87,7 +87,7 @@ namespace UI.Menus.Tabs
             GUI.Label(new Rect(x, y, 320, 18), "DETALII COSTURI OPERAȚIONALE (LOGISTICĂ)", theme.Value);
             y += 26;
             
-            float labelWidth = 160;
+            float labelWidth = 180;
             float indent = 12;
             float valueX = x + indent + labelWidth;
 
@@ -99,16 +99,16 @@ namespace UI.Menus.Tabs
             DrawSmallRow(x + indent, valueX, ref y, "Amortizare Active:", totals.TotalDepreciationCost.ToString("F2") + " €", theme.Label, theme.Value);
             
             y += 8;
-            UIDrawUtils.DrawHorizontalLine(x + indent, y, 400);
+            UIDrawUtils.DrawHorizontalLine(x + indent, y, 420);
             y += 10;
             DrawSmallRow(x + indent, valueX, ref y, "PROFIT NET FINAL:", totals.NetProfit.ToString("F2") + " €", theme.Label, theme.GetProfitStyle(totals.NetProfit));
         }
 
         private void DrawSmallRow(float x, float valueX, ref float y, string label, string value, GUIStyle labelStyle, GUIStyle valueStyle)
         {
-            GUI.Label(new Rect(x, y, 160, 16), label, labelStyle);
-            GUI.Label(new Rect(valueX, y, 120, 16), value, valueStyle);
-            y += 18;
+            GUI.Label(new Rect(x, y, 175, 18), label, labelStyle);
+            GUI.Label(new Rect(valueX, y, 120, 18), value, valueStyle);
+            y += 20;
         }
     }
 }

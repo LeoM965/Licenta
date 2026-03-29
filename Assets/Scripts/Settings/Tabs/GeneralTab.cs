@@ -19,9 +19,9 @@ namespace Settings.Tabs
             y += 35;
 
             // Plants per row
-            GUI.Label(new Rect(x, y, 130, 20), "Plante per rând:", theme.Label);
-            SimulationSettings.PlantsPerRow = (int)GUI.HorizontalSlider(new Rect(x + 130, y + 5, 110, 20), SimulationSettings.PlantsPerRow, 1, 25);
-            string pprInput = GUI.TextField(new Rect(x + 250, y, 30, 20), SimulationSettings.PlantsPerRow.ToString(), theme.Input);
+            GUI.Label(new Rect(x, y, 160, 20), "Plante per rând:", theme.Label);
+            SimulationSettings.PlantsPerRow = (int)GUI.HorizontalSlider(new Rect(x + 160, y + 5, 140, 20), SimulationSettings.PlantsPerRow, 1, 25);
+            string pprInput = GUI.TextField(new Rect(x + 310, y, 40, 20), SimulationSettings.PlantsPerRow.ToString(), theme.Input);
             if (int.TryParse(pprInput, out int pprResult)) SimulationSettings.PlantsPerRow = Mathf.Clamp(pprResult, 1, 25);
             y += 40;
 
@@ -29,23 +29,23 @@ namespace Settings.Tabs
             if (cropNames != null && cropNames.Length > 0)
             {
                 int idx = SimulationSettings.SelectedCropIndex + 1;
-                GUI.Label(new Rect(x, y, 130, 20), "Tip cultură:", theme.Label);
-                if (GUI.Button(new Rect(x + 140, y, 25, 22), "<", theme.Button)) idx = (idx - 1 + cropNames.Length) % cropNames.Length;
-                GUI.Label(new Rect(x + 170, y, 110, 22), cropNames[idx], theme.Value);
-                if (GUI.Button(new Rect(x + 285, y, 25, 22), ">", theme.Button)) idx = (idx + 1) % cropNames.Length;
+                GUI.Label(new Rect(x, y, 160, 20), "Tip cultură:", theme.Label);
+                if (GUI.Button(new Rect(x + 160, y, 25, 22), "<", theme.Button)) idx = (idx - 1 + cropNames.Length) % cropNames.Length;
+                GUI.Label(new Rect(x + 190, y, 120, 22), cropNames[idx], theme.Value);
+                if (GUI.Button(new Rect(x + 315, y, 25, 22), ">", theme.Button)) idx = (idx + 1) % cropNames.Length;
                 SimulationSettings.SelectedCropIndex = idx - 1;
                 y += 35;
             }
 
             // Simulation Mode Cycle
-            GUI.Label(new Rect(x, y, 130, 20), "Mod Planificare:", theme.Label);
-            if (GUI.Button(new Rect(x + 140, y, 25, 22), "<", theme.Button)) 
+            GUI.Label(new Rect(x, y, 160, 20), "Mod Planificare:", theme.Label);
+            if (GUI.Button(new Rect(x + 160, y, 25, 22), "<", theme.Button)) 
                 SimulationSettings.UseCentralizedScheduling = !SimulationSettings.UseCentralizedScheduling;
             
             string modeName = SimulationSettings.UseCentralizedScheduling ? "TaskManager" : "Secvențial";
-            GUI.Label(new Rect(x + 170, y, 110, 22), modeName, theme.Value);
+            GUI.Label(new Rect(x + 190, y, 120, 22), modeName, theme.Value);
             
-            if (GUI.Button(new Rect(x + 285, y, 25, 22), ">", theme.Button)) 
+            if (GUI.Button(new Rect(x + 315, y, 25, 22), ">", theme.Button)) 
                 SimulationSettings.UseCentralizedScheduling = !SimulationSettings.UseCentralizedScheduling;
             y += 35;
 
@@ -63,15 +63,15 @@ namespace Settings.Tabs
             GUI.Label(new Rect(x, y, 350, 20), "ROBOȚI PER ZONĂ", theme.Title);
             y += 25;
 
-            float colLabel = 90f;
-            float colWidth = 70f;
+            float colLabel = 100f;
+            float colWidth = 85f;
             float rowHeight = 24f;
 
             // Header row: zone labels
             for (int z = 0; z < zones; z++)
             {
                 string zoneName = ((char)('A' + z)).ToString();
-                GUI.Label(new Rect(x + colLabel + z * colWidth, y, colWidth, rowHeight), zoneName, theme.Value);
+                GUI.Label(new Rect(x + colLabel + z * colWidth, y, colWidth, rowHeight), $"Zona {zoneName}", theme.Value);
             }
             y += rowHeight;
 
@@ -86,12 +86,12 @@ namespace Settings.Tabs
                     float cx = x + colLabel + z * colWidth;
                     int count = SimulationSettings.GetCountForTypeZone(t, z);
 
-                    if (GUI.Button(new Rect(cx, y, 18, 20), "-", theme.Button))
+                    if (GUI.Button(new Rect(cx, y, 20, 20), "-", theme.Button))
                         SimulationSettings.SetCountForTypeZone(t, z, Mathf.Max(0, count - 1));
 
-                    GUI.Label(new Rect(cx + 20, y, 22, 20), count.ToString(), theme.Value);
+                    GUI.Label(new Rect(cx + 25, y, 25, 20), count.ToString(), theme.Value);
 
-                    if (GUI.Button(new Rect(cx + 42, y, 18, 20), "+", theme.Button))
+                    if (GUI.Button(new Rect(cx + 50, y, 20, 20), "+", theme.Button))
                         SimulationSettings.SetCountForTypeZone(t, z, Mathf.Min(10, count + 1));
                 }
                 y += rowHeight + 4;

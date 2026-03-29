@@ -18,7 +18,8 @@ namespace UI.Utils
             int count = Mathf.Min(values.Length, offsets.Length);
             for (int i = 0; i < count; i++)
             {
-                GUI.Label(new Rect(x + offsets[i], y, colWidth, height), values[i], style);
+                float w = (i < offsets.Length - 1) ? (offsets[i+1] - offsets[i]) : colWidth;
+                GUI.Label(new Rect(x + offsets[i], y, w, height), values[i], style);
             }
         }
 
@@ -28,7 +29,8 @@ namespace UI.Utils
             int count = Mathf.Min(values.Length, Mathf.Min(offsets.Length, styles.Length));
             for (int i = 0; i < count; i++)
             {
-                GUI.Label(new Rect(x + offsets[i], y, colWidth, height), values[i], styles[i]);
+                float w = (i < offsets.Length - 1) ? (offsets[i+1] - offsets[i]) : colWidth;
+                GUI.Label(new Rect(x + offsets[i], y, w, height), values[i], styles[i]);
             }
         }
     }

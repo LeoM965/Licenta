@@ -14,20 +14,13 @@ namespace UI.Menus
         private enum DashboardTab { Crops, Robots, History }
         private DashboardTab currentTab = DashboardTab.Crops;
         
-        private Tabs.CropDashboardTab cropTab;
-        private Tabs.RobotDashboardTab robotTab;
-        private Tabs.HistoryDashboardTab historyTab;
+        private Tabs.CropDashboardTab cropTab = new Tabs.CropDashboardTab();
+        private Tabs.RobotDashboardTab robotTab = new Tabs.RobotDashboardTab();
+        private Tabs.HistoryDashboardTab historyTab = new Tabs.HistoryDashboardTab();
 
         private CropDatabase cachedDB;
         private EconomicReport activeReport;
         private int cachedRobotCount;
-
-        private void Awake()
-        {
-            cropTab = new Tabs.CropDashboardTab();
-            robotTab = new Tabs.RobotDashboardTab();
-            historyTab = new Tabs.HistoryDashboardTab();
-        }
 
         private void Update()
         {
@@ -62,19 +55,19 @@ namespace UI.Menus
 
         private void DrawAnalysisDashboard()
         {
-            float width = 650f;
-            float height = Mathf.Min(Screen.height * 0.85f, 80f + (cachedDB.crops.Length * 17f) + 240f);
+            float width = 760f;
+            float height = Mathf.Min(Screen.height * 0.85f, 80f + (cachedDB.crops.Length * 22f) + 240f);
             if (currentTab == DashboardTab.Robots)
-                height = Mathf.Min(Screen.height * 0.85f, 130f + cachedRobotCount * 18f + 100f);
+                height = Mathf.Min(Screen.height * 0.85f, 130f + cachedRobotCount * 22f + 100f);
             Rect panel = new Rect((Screen.width - width) / 2, (Screen.height - height) / 2, width, height);
 
             theme.DrawPanel(panel);
 
-            float x = panel.x + 20;
-            float y = panel.y + 15;
+            float x = panel.x + 25;
+            float y = panel.y + 20;
 
-            DrawTabs(panel.x + 20, panel.y + 15);
-            y += 40;
+            DrawTabs(panel.x + 25, panel.y + 20);
+            y += 45;
 
             float contentBottom = panel.yMax - 30;
 
@@ -90,14 +83,14 @@ namespace UI.Menus
 
         private void DrawTabs(float x, float y)
         {
-            float tabWidth = 90;
+            float tabWidth = 110;
             if (GUI.Button(new Rect(x, y, tabWidth, 25), "CULTURI", currentTab == DashboardTab.Crops ? theme.Value : theme.Label))
                 currentTab = DashboardTab.Crops;
             
-            if (GUI.Button(new Rect(x + tabWidth + 5, y, tabWidth, 25), "ROBOȚI", currentTab == DashboardTab.Robots ? theme.Value : theme.Label))
+            if (GUI.Button(new Rect(x + tabWidth + 10, y, tabWidth, 25), "ROBOȚI", currentTab == DashboardTab.Robots ? theme.Value : theme.Label))
                 currentTab = DashboardTab.Robots;
 
-            if (GUI.Button(new Rect(x + (tabWidth + 5) * 2, y, tabWidth, 25), "ISTORIC", currentTab == DashboardTab.History ? theme.Value : theme.Label))
+            if (GUI.Button(new Rect(x + (tabWidth + 10) * 2, y, tabWidth, 25), "ISTORIC", currentTab == DashboardTab.History ? theme.Value : theme.Label))
                 currentTab = DashboardTab.History;
         }
 

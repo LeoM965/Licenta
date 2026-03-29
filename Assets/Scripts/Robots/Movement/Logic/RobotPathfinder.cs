@@ -103,7 +103,23 @@ namespace Robots.Components.Movement
 
         private void RequestPath(Vector3 target)
         {
-            if (Pathfinder.Instance != null)
+            float dist = Vector3.Distance(transform.position, target);
+            bool requiresAStar = true;
+
+            if (dist < 15f)
+            {
+                requiresAStar = false;
+                int mask = ~LayerMask.GetMask("Ignore Raycast", "UI", "Robot");
+                if (Physics.Linecast(transform.position + Vector3.up * 0.5f, target + Vector3.up * 0.5f, out RaycastHit hit, mask, QueryTriggerInteraction.Ignore))
+                {
+                    if (hit.collider.CompareTag("Building") || hit.collider.CompareTag("Fence"))
+                    {
+                        requiresAStar = true;
+                    }
+                }
+            }
+
+            if (Pathfinder.Instance != null && requiresAStar)
             {
                 List<Vector3> newPath = Pathfinder.Instance.FindPath(transform.position, target);
                 if (newPath != null && newPath.Count > 0)
@@ -113,6 +129,7 @@ namespace Robots.Components.Movement
                     return;
                 }
             }
+
             path = new List<Vector3> { target };
             pathIndex = 0;
         }

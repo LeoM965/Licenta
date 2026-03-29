@@ -89,7 +89,14 @@ namespace Robots.Components.Movement
             Vector3 moveDirection = pathfinder.GetMoveDirection(pos, dt, out newTargetAngle);
             targetAngle = newTargetAngle;
 
-            Vector3 avoidanceDir = RobotHelper.GetObstacleAvoidance(transform, pos, avoidRadius);
+            Vector3 avoidanceDir = Vector3.zero;
+            bool isDocking = pathfinder.FinalTarget.HasValue && Vector3.Distance(pos, pathfinder.FinalTarget.Value) < 8f;
+            
+            if (!isDocking)
+            {
+                avoidanceDir = RobotHelper.GetObstacleAvoidance(transform, pos, avoidRadius);
+            }
+
             if (avoidanceDir != Vector3.zero)
                 moveDirection = (moveDirection + avoidanceDir).normalized;
 

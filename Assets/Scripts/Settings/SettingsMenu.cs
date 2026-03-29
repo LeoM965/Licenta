@@ -56,20 +56,20 @@ namespace Settings
                 if (tabs == null) return;
             }
 
-            float w = 450f, h = 550f;
+            float w = 540f, h = 600f;
             Rect p = new Rect((Screen.width - w) / 2, (Screen.height - h) / 2, w, h);
             theme.DrawPanel(p);
 
             float x = p.x + 20, y = p.y + 15;
 
             // Tabs Header
-            DrawTabs(new Rect(x, y, 410, 30));
+            DrawTabs(new Rect(x, y, w - 40, 30));
             y += 45;
 
             // Tab Content
             if (currentTabIndex < tabs.Count)
             {
-                Rect contentArea = new Rect(x, y, 410, p.yMax - y - 40);
+                Rect contentArea = new Rect(x, y, w - 40, p.yMax - y - 40);
                 GUI.BeginGroup(contentArea);
                 tabs[currentTabIndex].Draw(new Rect(0, 0, contentArea.width, contentArea.height), theme);
                 GUI.EndGroup();
@@ -78,7 +78,7 @@ namespace Settings
             // Footer
             GUI.Label(new Rect(p.x, p.yMax - 28, w, 20), "Apasă S pentru a închide", theme.Footer);
             
-            if (GUI.Button(new Rect(p.x + 230, p.yMax - 30, 80, 22), "Aplică", theme.Button))
+            if (GUI.Button(new Rect(p.x + (w / 2) - 40, p.yMax - 30, 80, 22), "Aplică", theme.Button))
             {
                 SimulationSettings.OnSettingsChanged?.Invoke();
             }

@@ -73,8 +73,10 @@ namespace AI.Navigation
             int count = Physics.OverlapSphereNonAlloc(pos, obstacleRadius, blockCheckBuffer, ~0, QueryTriggerInteraction.Collide);
             for (int i = 0; i < count; i++)
             {
-                if (blockCheckBuffer[i].CompareTag("Fence")) return true;
-                if (blockCheckBuffer[i].CompareTag("Parcel")) return true;
+                Collider col = blockCheckBuffer[i];
+                if (col.CompareTag("Fence")) return true;
+                if (col.CompareTag("Parcel")) return true;
+                if (col.CompareTag("Building")) return true;
             }
             return false;
         }

@@ -71,7 +71,8 @@ public class RobotStats
         if (deltaHours <= 0) return 0;
 
         float annualDep = purchasePrice * (1f - residualValueRate);
-        float hourlyDep = annualDep / (utilityLifeYears * 365f * 24f); 
+        int life = utilityLifeYears > 0 ? utilityLifeYears : 10;
+        float hourlyDep = annualDep / (life * 365f * 24f); 
         
         float added = hourlyDep * deltaHours;
         depreciationCost += added;

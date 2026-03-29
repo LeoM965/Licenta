@@ -27,6 +27,15 @@ namespace AI.Navigation
             
             if (startNode == null || endNode == null) return null;
             
+            if (!startNode.walkable)
+            {
+                PathNode nearest = grid.FindNearestWalkable(startNode);
+                if (nearest != null && Vector3.Distance(start, nearest.WorldPosition) < Vector3.Distance(start, end))
+                {
+                    startNode = nearest;
+                }
+            }
+            
             Vector3 originalEnd = end;
             bool endWasBlocked = !endNode.walkable;
             if (endWasBlocked)

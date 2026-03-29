@@ -9,7 +9,7 @@ namespace UI.Menus.Tabs
     public class RobotDashboardTab : BaseDashboardTab
     {
         private string filterZone = "Toate";
-        private readonly float[] robotColOffsets = { 0, 40, 105, 195, 255, 305, 370, 435, 505 };
+        private readonly float[] robotColOffsets = { 0, 60, 200, 290, 350, 420, 500, 580, 660 };
 
 
         private struct CachedRobotData
@@ -82,42 +82,42 @@ namespace UI.Menus.Tabs
         {
             // Fleet investment summary
             GUI.Label(new Rect(x, y, 200, 20), "Investiție Flotă:", theme.Label);
-            GUI.Label(new Rect(x + 130, y, 150, 20), $"{fleetInvestment:N0}€", theme.Value);
-            GUI.Label(new Rect(x + 310, y, 200, 20), $"({cachedRobots.Count} roboți)", theme.Label);
-            y += 25;
+            GUI.Label(new Rect(x + 140, y, 150, 20), $"{fleetInvestment:N0}€", theme.Value);
+            GUI.Label(new Rect(x + 340, y, 200, 20), $"({cachedRobots.Count} roboți)", theme.Label);
+            y += 30;
 
             DrawSectionTitle(x, ref y, "TABEL ANALIZĂ FLOTĂ ROBOȚI", theme);
-            y += 5;
+            y += 10;
 
             // Zone filter buttons
-            float bx = x + 340;
+            float bx = x + 440;
             string[] zones = { "Toate", "A", "B", "C", "D" };
             foreach (var z in zones)
             {
-                if (GUI.Button(new Rect(bx, y, 45, 18), z, filterZone == z ? theme.Value : theme.Label))
+                if (GUI.Button(new Rect(bx, y, 50, 20), z, filterZone == z ? theme.Value : theme.Label))
                     filterZone = z;
-                bx += 48;
+                bx += 55;
             }
-            y += 25;
+            y += 35;
 
             // Header row
             string[] headers = { "Zone", "Model", "Activity", "Bat.", "Hours", "Dist(km)", "Cost(€)", "Venit(€)", "ROI %" };
             UIDrawUtils.DrawRow(x, y, robotColOffsets, headers, theme.Value);
-            y += 22;
-            UIDrawUtils.DrawHorizontalLine(x, y, 580);
-            y += 8;
+            y += 26;
+            UIDrawUtils.DrawHorizontalLine(x, y, 720);
+            y += 12;
 
             // Scrollable robot list
             int visibleCount = 0;
             foreach (var data in cachedRobots)
                 if (filterZone == "Toate" || data.Zone == filterZone) visibleCount++;
 
-            float rowHeight = 18f;
+            float rowHeight = 22f;
             float listHeight = visibleCount * rowHeight;
             float availableHeight = contentBottom - y - 10f;
-            if (availableHeight < 100f) availableHeight = 100f;
-            Rect scrollView = new Rect(x, y, 590, Mathf.Min(listHeight + 10, availableHeight));
-            Rect scrollContent = new Rect(0, 0, 575, listHeight);
+            if (availableHeight < 150f) availableHeight = 150f;
+            Rect scrollView = new Rect(x, y, 730, Mathf.Min(listHeight + 15, availableHeight));
+            Rect scrollContent = new Rect(0, 0, 715, listHeight);
 
             scrollPos = GUI.BeginScrollView(scrollView, scrollPos, scrollContent);
             float sy = 0;

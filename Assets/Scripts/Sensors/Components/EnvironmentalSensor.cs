@@ -122,6 +122,12 @@ namespace Sensors.Components
         // Registru global istoric per cultura (se acumuleaza la fiecare replantare)
         public static Dictionary<string, HistoricalCropRecord> CropHistory { get; private set; } = new Dictionary<string, HistoricalCropRecord>();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticData()
+        {
+            CropHistory.Clear();
+        }
+
         public void ResetHarvestStats()
         {
             // Salveaza datele sezonului anterior in registrul istoric per cultura

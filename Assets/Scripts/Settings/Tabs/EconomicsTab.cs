@@ -26,7 +26,7 @@ namespace Settings.Tabs
             if (cropDB?.crops != null && SimulationSettings.SeedCosts != null)
             {
                 Rect scrollArea = new Rect(x, y, area.width, area.height - y);
-                Rect content = new Rect(0, 0, area.width - 20, cropDB.crops.Length * 100);
+                Rect content = new Rect(0, 0, area.width - 20, cropDB.crops.Length * 130);
                 scroll = GUI.BeginScrollView(scrollArea, scroll, content);
 
                 float sy = 0;

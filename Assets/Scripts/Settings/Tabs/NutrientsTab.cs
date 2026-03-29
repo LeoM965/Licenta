@@ -27,26 +27,26 @@ namespace Settings.Tabs
                 
                 for (int i = 0; i < cropDB.crops.Length; i++)
                 {
-                    GUI.Label(new Rect(0, sy, 340, 22), $"CULTURĂ: {cropDB.crops[i].name.ToUpper()}", theme.Title);
+                    GUI.Label(new Rect(0, sy, 400, 22), $"CULTURĂ: {cropDB.crops[i].name.ToUpper()}", theme.Title);
                     sy += 25;
 
                     // Compact Nutrients Section with labels
-                    GUI.Label(new Rect(0, sy, 50, 18), "AZOT (N)", smallBold);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.N_Min[i], 60, 0, 200, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.N_Opt[i], 175, 10, 400, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.N_Max[i], 285, 20, 800, theme);
+                    GUI.Label(new Rect(0, sy, 70, 18), "AZOT (N)", smallBold);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.N_Min[i], 75, 0, 200, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.N_Opt[i], 225, 10, 400, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.N_Max[i], 375, 20, 800, theme);
                     sy += 22;
 
-                    GUI.Label(new Rect(0, sy, 50, 18), "FOSFOR (P)", smallBold);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.P_Min[i], 60, 0, 150, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.P_Opt[i], 175, 5, 300, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.P_Max[i], 285, 10, 600, theme);
+                    GUI.Label(new Rect(0, sy, 70, 18), "FOSFOR (P)", smallBold);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.P_Min[i], 75, 0, 150, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.P_Opt[i], 225, 5, 300, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.P_Max[i], 375, 10, 600, theme);
                     sy += 22;
 
-                    GUI.Label(new Rect(0, sy, 50, 18), "POTASIU (K)", smallBold);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.K_Min[i], 60, 0, 250, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.K_Opt[i], 175, 10, 500, theme);
-                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.K_Max[i], 285, 20, 1000, theme);
+                    GUI.Label(new Rect(0, sy, 70, 18), "POTASIU (K)", smallBold);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Min", ref SimulationSettings.K_Min[i], 75, 0, 250, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Opt", ref SimulationSettings.K_Opt[i], 225, 10, 500, theme);
+                    SettingsUIHelper.DrawCompactSlider(ref sy, "Max", ref SimulationSettings.K_Max[i], 375, 20, 1000, theme);
                     
                     sy += 35;
                 }
