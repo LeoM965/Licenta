@@ -51,11 +51,16 @@ namespace Sensors.Components
             }
         }
 
-        // Accumulated harvest stats (persist after plants are destroyed)
+        // Statistici curente per cultura activa
         public int harvestedCount { get; private set; }
         public float harvestedWeightKg { get; private set; }
         public float harvestedRevenue { get; private set; }
         public float harvestedSeedCost { get; private set; }
+
+        // Statistici istorice (acumulate din sezoanele anterioare)
+        public float historicalRevenue { get; private set; }
+        public float historicalWeightKg { get; private set; }
+        public float historicalSeedCost { get; private set; }
 
         public SoilSettings Settings
         {
@@ -114,6 +119,36 @@ namespace Sensors.Components
             harvestedSeedCost += seedCost;
         }
 
+        // Registru global istoric per cultura (se acumuleaza la fiecare replantare)
+        public static Dictionary<string, HistoricalCropRecord> CropHistory { get; private set; } = new Dictionary<string, HistoricalCropRecord>();
+
+        public void ResetHarvestStats()
+        {
+            // Salveaza datele sezonului anterior in registrul istoric per cultura
+            if (!string.IsNullOrEmpty(plantedVarietyName) && (harvestedCount > 0 || harvestedRevenue > 0))
+            {
+                if (!CropHistory.ContainsKey(plantedVarietyName))
+                    CropHistory[plantedVarietyName] = new HistoricalCropRecord();
+                
+                var record = CropHistory[plantedVarietyName];
+                record.totalPlants += harvestedCount;
+                record.totalRevenue += harvestedRevenue;
+                record.totalWeightKg += harvestedWeightKg;
+                record.totalSeedCost += harvestedSeedCost;
+            }
+
+            // Salveaza in istoric global pe parcela
+            historicalRevenue += harvestedRevenue;
+            historicalWeightKg += harvestedWeightKg;
+            historicalSeedCost += harvestedSeedCost;
+
+            // Reseteaza complet pentru noua cultura
+            harvestedCount = 0;
+            harvestedWeightKg = 0;
+            harvestedRevenue = 0;
+            harvestedSeedCost = 0;
+        }
+
         public void AdjustNutrients(float n, float p, float k)
         {
             if (composition == null) return;
@@ -134,6 +169,16 @@ namespace Sensors.Components
         {
             activeCrops.Remove(crop);
             if (activeCrops.Count == 0) plantedVarietyName = "";
+        }
+
+        public static void ResetAllScheduling()
+        {
+            if (ParcelCache.Instance == null) return;
+            foreach (var parcel in ParcelCache.Instance.ParcelsIterator)
+            {
+                if (parcel != null) parcel.isScheduledForTask = false;
+            }
+            Debug.Log("[EnvironmentalSensor] Toate programarile sarcinilor au fost resetate.");
         }
     }
 }

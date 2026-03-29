@@ -41,6 +41,17 @@ namespace Economics.Services
                 report.AnalysisByVariety[varietyName] = stats;
             }
 
+            // Adauga datele istorice din sezoanele anterioare per cultura
+            foreach (var kvp in EnvironmentalSensor.CropHistory)
+            {
+                var stats = GetOrCreateVarietyStats(report.AnalysisByVariety, kvp.Key);
+                stats.HarvestedPlants += kvp.Value.totalPlants;
+                stats.HarvestedRevenue += kvp.Value.totalRevenue;
+                stats.TotalWeightKg += kvp.Value.totalWeightKg;
+                stats.TotalSeedCost += kvp.Value.totalSeedCost;
+                report.AnalysisByVariety[kvp.Key] = stats;
+            }
+
             CalculateFarmTotals(ref report);
             lastReport = report;
             lastCalculatedFrame = Time.frameCount;
@@ -101,6 +112,9 @@ namespace Economics.Services
                 summary.SoilFitSum += varietyStats.SoilFitSum;
                 summary.ParcelCount += varietyStats.ParcelCount;
             }
+
+            // NOTA: datele istorice sunt deja incluse per cultura din CropHistory (liniile 44-53)
+            // NU mai adunam parcel.historicalRevenue aici - ar fi dubla contorizare!
 
             if (RobotEconomicsManager.Instance != null)
             {

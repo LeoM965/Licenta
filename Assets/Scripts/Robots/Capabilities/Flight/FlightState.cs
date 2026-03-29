@@ -5,6 +5,7 @@ namespace Robots.Models
         Initializing,
         Navigating,
         HoveringAtTarget,
-        Charging
+        Charging,
+        Idle
     }
 }

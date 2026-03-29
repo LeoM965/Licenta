@@ -10,6 +10,7 @@ namespace Settings
         public static float[] MarketPrices;
         public static float EnergyPrice = 0.20f;
         public static float MinQualityToPlant = 30f;
+        public static bool UseCentralizedScheduling = true;
 
         // Per-type, per-zone robot counts: RobotCounts[typeIndex][zoneIndex]
         public static int[][] RobotCounts;

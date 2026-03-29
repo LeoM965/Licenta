@@ -55,8 +55,9 @@ namespace Economics.Managers
                 {
                     if (stats.IsCurrentlyActive)
                     {
+                        GlobalDepreciationCost += stats.AddDepreciation(worldDelta);
                         stats.time += worldDelta * 3600f;
-                        stats.IsCurrentlyActive = false; // Reset pentru frame-ul următor
+                        stats.IsCurrentlyActive = false;
                     }
                 }
             }
@@ -84,7 +85,7 @@ namespace Economics.Managers
             if (distMeters > 0 || deltaHours > 0)
             {
                 GlobalMaintenanceCost += stats.AddMaintenance(distMeters, deltaHours);
-                GlobalDepreciationCost += stats.AddDepreciation(deltaHours);
+                // Amortizarea nu se mai calculeaza aici - se aplica in LateUpdate pe timp calendaristic
             }
         }
 

@@ -30,7 +30,11 @@ public class PlantingExecutor
 
         if (crop == null) return;
 
-        if (plantsPlaced == 0) parcel.plantedVarietyName = crop.name;
+        if (plantsPlaced == 0)
+        {
+            parcel.plantedVarietyName = crop.name;
+            parcel.ResetHarvestStats();
+        }
 
         var costs = Settings.SimulationSettings.SeedCosts;
         float currentCost = (costs != null && cropIndex >= 0 && cropIndex < costs.Length) ? costs[cropIndex] : crop.seedCostEUR;

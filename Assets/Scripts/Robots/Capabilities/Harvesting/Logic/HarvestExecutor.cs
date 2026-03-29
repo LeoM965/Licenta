@@ -68,6 +68,7 @@ public class HarvestExecutor
     public void Reset()
     {
         harvestedInParcel = 0;
+        harvestTimer = 0f;
         varietyName = null;
         cropIndex = -1;
     }

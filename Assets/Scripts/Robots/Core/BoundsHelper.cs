@@ -11,6 +11,23 @@ public static class BoundsHelper
         }
         return null;
     }
+    public static FenceZone FindClosestZone(Vector3 position, FenceZone[] zones)
+    {
+        if (zones == null || zones.Length == 0) return null;
+        FenceZone closest = null;
+        float minDist = float.MaxValue;
+        foreach (var zone in zones)
+        {
+            Vector3 center = new Vector3((zone.startXZ.x + zone.endXZ.x) / 2f, position.y, (zone.startXZ.y + zone.endXZ.y) / 2f);
+            float dist = Vector3.Distance(position, center);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = zone;
+            }
+        }
+        return closest;
+    }
     public static Rect GetZoneBounds(FenceZone zone, float margin)
     {
         float minX = zone.startXZ.x + margin;

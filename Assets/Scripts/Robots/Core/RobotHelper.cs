@@ -38,6 +38,9 @@ public static class RobotHelper
         
         if (hit.transform.IsChildOf(transform) || hit.transform.CompareTag("Parcel"))
             return Vector3.zero;
+
+        if (hit.transform.GetComponentInParent<CropGrowth>() != null)
+            return Vector3.zero;
         
         float strength = 1f - (hit.distance / avoidRadius);
         return Vector3.Cross(Vector3.up, transform.forward) * strength * 2f;

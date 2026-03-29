@@ -56,16 +56,30 @@ namespace Robots.Capabilities.Flight
         public EnvironmentalSensor SelectNextTarget()
         {
             if (trackedParcels.Count == 0) return null;
-            currentParcelIndex = (currentParcelIndex + 1) % trackedParcels.Count;
-            CurrentTarget = trackedParcels[currentParcelIndex];
-            return CurrentTarget;
+            
+            // Cauta urmatoarea parcela care CHIAR are nevoie de tratament
+            for (int i = 0; i < trackedParcels.Count; i++)
+            {
+                currentParcelIndex = (currentParcelIndex + 1) % trackedParcels.Count;
+                var parcel = trackedParcels[currentParcelIndex];
+                if (parcel != null && NeedsTreatment(parcel))
+                {
+                    CurrentTarget = parcel;
+                    return CurrentTarget;
+                }
+            }
+            
+            // Nicio parcela nu are nevoie de tratament
+            CurrentTarget = null;
+            return null;
         }
 
-        public EnvironmentalSensor PeekNextTarget()
+        public bool NeedsTreatment(EnvironmentalSensor parcel)
         {
-            if (trackedParcels.Count == 0) return null;
-            int nextIdx = (currentParcelIndex + 1) % trackedParcels.Count;
-            return trackedParcels[nextIdx];
+            if (parcel == null) return false;
+            var data = CropLoader.Load()?.Get(parcel.plantedVarietyName);
+            float requiredN = data?.requirements?.nitrogen?.optimal ?? 100f;
+            return parcel.nitrogen < requiredN * 0.95f; // sub 95% din optim
         }
 
         public bool HasTargets => trackedParcels.Count > 0;

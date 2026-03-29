@@ -22,6 +22,7 @@ namespace Robots.Capabilities.Flight
 
         private FlightState state = FlightState.Initializing;
         private float treatmentTimer;
+        private float idleRescanTimer;
         private Vector3? manualTarget;
 
         public bool HasTarget => manualTarget.HasValue || navigation?.CurrentTarget != null;
@@ -107,6 +108,7 @@ namespace Robots.Capabilities.Flight
                 case FlightState.Charging: HandleChargingState(); break;
                 case FlightState.Navigating: HandleNavigationState(); break;
                 case FlightState.HoveringAtTarget: HandleTreatmentState(); break;
+                case FlightState.Idle: HandleIdleState(); break;
             }
         }
 
@@ -152,14 +154,41 @@ namespace Robots.Capabilities.Flight
 
         private void AnalyzeNextTask()
         {
-            var next = navigation.PeekNextTarget();
-            float dist = next != null ? Vector3.Distance(flightBody.position, next.transform.position) : 0f;
+            var next = navigation.SelectNextTarget();
+            if (next == null)
+            {
+                // Nicio parcela nu mai are nevoie de tratament
+                idleRescanTimer = 5f;
+                state = FlightState.Idle;
+                return;
+            }
+
+            float dist = Vector3.Distance(flightBody.position, next.transform.position);
             if (energyManager.CheckBattery(dist, settings.waitTimePerParcel))
             {
-                navigation.SelectNextTarget();
                 state = FlightState.Navigating;
             }
             else state = FlightState.Charging;
+        }
+
+        private void HandleIdleState()
+        {
+            // Drona planeaza pe loc si re-verifica periodic daca vreo parcela are nevoie de tratament
+            motor.UpdateMovement(flightBody.position, false);
+            idleRescanTimer -= Time.deltaTime;
+            if (idleRescanTimer <= 0f)
+            {
+                navigation.RefreshParcels();
+                var next = navigation.SelectNextTarget();
+                if (next != null)
+                {
+                    state = FlightState.Navigating;
+                }
+                else
+                {
+                    idleRescanTimer = 5f;
+                }
+            }
         }
 
         private Vector3 GetTargetPosition(EnvironmentalSensor target) => GetTargetPosition(target != null ? target.transform.position : flightBody.position);
@@ -174,6 +203,7 @@ namespace Robots.Capabilities.Flight
                 FlightState.Navigating => "Zbor spre " + navigation.CurrentTarget.name,
                 FlightState.HoveringAtTarget => "Tratare sol în desfășurare pe " + navigation.CurrentTarget.name,
                 FlightState.Charging => "Se deplasează la încărcare...",
+                FlightState.Idle => "Idle - Nicio parcelă nu necesită tratament",
                 _ => "Idle"
             };
         }

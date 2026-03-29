@@ -42,6 +42,7 @@ namespace Economics.Models
     public struct DailySnapshot
     {
         public int Day;
+        public string SeasonName;
         public float TotalRevenue;
         public float TotalCosts;
         public float NetProfit;

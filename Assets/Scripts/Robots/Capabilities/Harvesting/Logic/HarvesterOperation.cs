@@ -10,6 +10,7 @@ public class HarvesterOperation
     private HarvestConfig config;
     private HarvestExecutor executor;
     private CropDatabase cropDB;
+    private EnvironmentalSensor currentParcel;
 
     private List<CropGrowth> cropsToHarvest = new List<CropGrowth>();
     private int cropIndex;
@@ -33,13 +34,19 @@ public class HarvesterOperation
 
     public void StartHarvesting(EnvironmentalSensor parcel)
     {
+        currentParcel = parcel;
         cropsToHarvest.Clear();
         cropIndex = 0;
 
         foreach (var crop in parcel.activeCrops)
         {
             if (crop != null && crop.IsHarvestable)
+            {
                 cropsToHarvest.Add(crop);
+                Collider[] cols = crop.GetComponentsInChildren<Collider>();
+                foreach (var c in cols) 
+                    if (c != null) movement.IgnoreCollisionWith(c, true);
+            }
         }
 
         if (cropsToHarvest.Count > 0)
@@ -68,8 +75,13 @@ public class HarvesterOperation
         Vector3 target = targetCrop.transform.position;
         Vector3 pos = transform.position;
         float dx = pos.x - target.x, dz = pos.z - target.z;
+        float sqrDist = dx * dx + dz * dz;
 
-        if (dx * dx + dz * dz < config.harvestRadius * config.harvestRadius || !movement.HasTarget)
+        bool isCloseEnough = sqrDist < (config.harvestRadius * config.harvestRadius);
+        bool hasArrived = movement.HasArrived;
+        bool isStuckWithoutTarget = !movement.HasTarget;
+
+        if (isCloseEnough || hasArrived || isStuckWithoutTarget)
         {
             movement.Stop();
             if (executor.UpdateHarvest(targetCrop, transform))
@@ -82,17 +94,36 @@ public class HarvesterOperation
 
     private void MoveToNextCrop()
     {
+        while (cropIndex < cropsToHarvest.Count && cropsToHarvest[cropIndex] == null)
+            cropIndex++;
+
         if (cropIndex >= cropsToHarvest.Count) { FinishParcel(); return; }
         movement.SetTarget(cropsToHarvest[cropIndex].transform.position);
     }
 
     private void FinishParcel()
     {
+        if (currentParcel != null)
+        {
+            currentParcel.isScheduledForTask = false;
+        }
+
+        foreach (var crop in cropsToHarvest)
+        {
+            if (crop != null)
+            {
+                Collider[] cols = crop.GetComponentsInChildren<Collider>();
+                foreach (var c in cols)
+                    if (c != null) movement.IgnoreCollisionWith(c, false);
+            }
+        }
+
         if (energy != null) energy.SetWorking(false);
         sessionHarvestedCount += executor.HarvestedInParcel;
         cropsToHarvest.Clear();
         cropIndex = 0;
         executor.Reset();
         isHarvesting = false;
+        currentParcel = null;
     }
 }

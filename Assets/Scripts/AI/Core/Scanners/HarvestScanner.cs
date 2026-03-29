@@ -13,8 +13,9 @@ namespace AI.Core.Scanners
 
             foreach (var parcel in ParcelCache.Instance.ParcelsIterator)
             {
-                if (parcel == null || parcel.isScheduledForTask || parcel.activeCrops.Count == 0) 
-                    continue;
+                if (parcel == null || 
+                    parcel.isScheduledForTask || 
+                    parcel.activeCrops.Count == 0) continue;
 
                 int matureCount = GetMatureCropCount(parcel);
                 if (matureCount == 0) continue;
@@ -22,7 +23,7 @@ namespace AI.Core.Scanners
                 int zoneIdx = GetOrCreateZoneIndex(parcel, zones);
                 if (zoneIdx >= 0)
                 {
-                    float gain = matureCount * 25f; // Economic gain from harvesting
+                    float gain = matureCount * 25f; 
                     tasks.Add(new HarvestTask(parcel.transform, gain));
                     parcel.isScheduledForTask = true;
                 }

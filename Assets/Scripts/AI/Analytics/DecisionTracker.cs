@@ -14,6 +14,7 @@ namespace AI.Analytics
         private readonly Dictionary<Transform, DecisionRecord> lastDecisions = new Dictionary<Transform, DecisionRecord>();
         private readonly Dictionary<Transform, List<DecisionRecord>> decisionHistory = new Dictionary<Transform, List<DecisionRecord>>();
         private readonly Dictionary<Transform, float> totalScores = new Dictionary<Transform, float>();
+        private readonly Dictionary<Transform, int> totalDecisionsCount = new Dictionary<Transform, int>();
         private readonly List<Transform> toRemove = new List<Transform>();
         private float nextCleanupTime;
 
@@ -43,11 +44,13 @@ namespace AI.Analytics
             {
                 decisionHistory[robot] = new List<DecisionRecord>();
                 totalScores[robot] = 0f;
+                totalDecisionsCount[robot] = 0;
             }
 
             List<DecisionRecord> history = decisionHistory[robot];
             history.Add(record);
             totalScores[robot] += record.chosenScore;
+            totalDecisionsCount[robot]++;
 
             if (history.Count > maxHistoryPerRobot)
             {
@@ -63,7 +66,7 @@ namespace AI.Analytics
 
         public int GetTotalDecisions(Transform robot)
         {
-            return decisionHistory.TryGetValue(robot, out var history) ? history.Count : 0;
+            return totalDecisionsCount.TryGetValue(robot, out var count) ? count : 0;
         }
 
         public float GetAverageScore(Transform robot)
@@ -84,6 +87,7 @@ namespace AI.Analytics
                 lastDecisions.Remove(robot);
                 decisionHistory.Remove(robot);
                 totalScores.Remove(robot);
+                totalDecisionsCount.Remove(robot);
             }
         }
     }

@@ -76,7 +76,7 @@ namespace Robots.Components.Movement
         {
             if (terrain == null || pathfinder == null) return;
 
-            if (isStopped)
+            if (isStopped || !pathfinder.HasTarget)
             {
                 velocity = Vector3.Lerp(velocity, Vector3.zero, Time.fixedDeltaTime * 5f);
                 return;

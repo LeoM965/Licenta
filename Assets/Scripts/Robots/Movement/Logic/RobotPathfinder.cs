@@ -16,9 +16,21 @@ namespace Robots.Components.Movement
         private float stuckTimer;
         private Vector3 stuckPushDir;
         private Vector3 lastFixedPos;
-
         public bool HasTarget => path != null && pathIndex < path.Count;
-        public bool HasArrived => finalTarget.HasValue && Vector3.Distance(transform.position, finalTarget.Value) < arrivalThreshold;
+        
+        public bool HasArrived 
+        {
+            get 
+            {
+                if (!finalTarget.HasValue) return false;
+                Vector3 t = finalTarget.Value;
+                Vector3 p = transform.position;
+                float dx = t.x - p.x;
+                float dz = t.z - p.z;
+                return (dx * dx + dz * dz) < (arrivalThreshold * arrivalThreshold);
+            }
+        }
+
         public Vector3? FinalTarget => finalTarget;
         public List<Vector3> CurrentPath => path;
         public Vector3 StuckPushDir => stuckPushDir;
@@ -57,7 +69,9 @@ namespace Robots.Components.Movement
             dir.y = 0;
             float dist = dir.magnitude;
 
-            if (dist < waypointThreshold)
+            float currentThreshold = (pathIndex == path.Count - 1) ? arrivalThreshold : waypointThreshold;
+
+            if (dist < currentThreshold)
             {
                 pathIndex++;
                 if (pathIndex >= path.Count && finalTarget.HasValue)

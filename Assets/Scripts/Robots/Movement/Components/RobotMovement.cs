@@ -34,10 +34,11 @@ public class RobotMovement : MonoBehaviour, IRobotMovement
         wheelController = GetComponent<RobotWheelController>();
     }
 
+    private bool isInitialized = false;
+
     private void Start()
     {
         terrain = Terrain.activeTerrain;
-        InitBounds();
         
         motor.Randomize(
             Random.Range(0.75f, 1.3f),
@@ -46,13 +47,26 @@ public class RobotMovement : MonoBehaviour, IRobotMovement
             Random.Range(0.8f, 1.2f),
             Random.Range(0.8f, 1.2f));
         
-        float groundOffset = RobotHelper.CalculateGroundOffset(transform);
-        motor.Initialize(terrain, movementBounds, groundOffset);
-        
         wheelController.SetWheels(wheels, wheelRadius);
     }
 
-    private void InitBounds()
+    private void Update()
+    {
+        if (!isInitialized)
+        {
+            terrain = Terrain.activeTerrain;
+            FenceGenerator fence = FindFirstObjectByType<FenceGenerator>();
+            if (terrain != null && fence != null && fence.zones != null && fence.zones.Length > 0)
+            {
+                InitBounds();
+                float groundOffset = RobotHelper.CalculateGroundOffset(transform);
+                motor.Initialize(terrain, movementBounds, groundOffset);
+                isInitialized = true;
+            }
+        }
+    }
+
+    public void InitBounds()
     {
         FenceGenerator fence = FindFirstObjectByType<FenceGenerator>();
         if (fence?.zones != null)

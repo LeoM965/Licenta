@@ -28,6 +28,11 @@ public abstract class RobotOperator : MonoBehaviour
     {
     }
 
+    protected virtual void OnDisable()
+    {
+        ReleaseCurrentParcel();
+    }
+
     protected virtual void Update()
     {
         if (energyManager == null) return;
@@ -49,7 +54,10 @@ public abstract class RobotOperator : MonoBehaviour
             UpdateOperation();
 
         if (energy != null) 
+        {
             energy.SetWorking(state == OperatorState.Working);
+            energy.SetIdle(state == OperatorState.Idle);
+        }
 
         switch (state)
         {
@@ -67,7 +75,12 @@ public abstract class RobotOperator : MonoBehaviour
 
     protected void MoveToNextParcel()
     {
-        if (parcelIndex >= parcels.Count) { OnAllParcelsComplete(); return; }
+        if (parcelIndex >= parcels.Count) 
+        { 
+            ReleaseCurrentParcel();
+            OnAllParcelsComplete(); 
+            return; 
+        }
 
         EnvironmentalSensor nextParcel = parcels[parcelIndex];
         if (nextParcel == null) 
@@ -84,6 +97,7 @@ public abstract class RobotOperator : MonoBehaviour
             return; 
         }
 
+        ReleaseCurrentParcel();
         SetParcelCollision(currentParcel, false);
         currentParcel = nextParcel;
         parcelIndex++;
@@ -91,6 +105,14 @@ public abstract class RobotOperator : MonoBehaviour
         SetParcelCollision(currentParcel, true);
         movement.SetTarget(currentParcel.transform.position);
         state = OperatorState.MovingToParcel;
+    }
+
+    protected void ReleaseCurrentParcel()
+    {
+        if (currentParcel != null)
+        {
+            currentParcel.isScheduledForTask = false;
+        }
     }
 
     private void CheckArrivalAtParcel()

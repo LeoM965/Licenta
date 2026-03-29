@@ -37,6 +37,18 @@ namespace Settings.Tabs
                 y += 35;
             }
 
+            // Simulation Mode Cycle
+            GUI.Label(new Rect(x, y, 130, 20), "Mod Planificare:", theme.Label);
+            if (GUI.Button(new Rect(x + 140, y, 25, 22), "<", theme.Button)) 
+                SimulationSettings.UseCentralizedScheduling = !SimulationSettings.UseCentralizedScheduling;
+            
+            string modeName = SimulationSettings.UseCentralizedScheduling ? "TaskManager" : "Secvențial";
+            GUI.Label(new Rect(x + 170, y, 110, 22), modeName, theme.Value);
+            
+            if (GUI.Button(new Rect(x + 285, y, 25, 22), ">", theme.Button)) 
+                SimulationSettings.UseCentralizedScheduling = !SimulationSettings.UseCentralizedScheduling;
+            y += 35;
+
             // Robot count grid
             DrawRobotCountGrid(x, y, theme);
         }

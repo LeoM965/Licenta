@@ -14,6 +14,7 @@ public class RobotEnergy : MonoBehaviour
     private Vector3 lastPosition;
     private bool isWorking;
     private bool isCharging;
+    private bool isIdle;
     private float accumulatedEnergy;
     private float accumulatedDist;
     private float accumulatedSimHours;
@@ -79,11 +80,17 @@ public class RobotEnergy : MonoBehaviour
             return;
         }
 
+        // Cand robotul e in Idle, nu consuma energie si nu inregistreaza distanta/costuri
+        if (isIdle)
+        {
+            lastPosition = transform.position;
+            return;
+        }
+
         float consumed = 0f;
         float dist = Vector3.Distance(transform.position, lastPosition);
-        bool isActive = dist > 0.001f || isWorking;
 
-        if (dist > 0.001f)
+        if (dist > 0.01f)
         {
             consumed += dist * battery.consumptionMeter;
             lastPosition = transform.position;
@@ -93,26 +100,22 @@ public class RobotEnergy : MonoBehaviour
         }
 
         float effectiveDT = Time.deltaTime * multiplier;
-
         consumed += (isWorking ? battery.consumptionWorkSec : battery.consumptionStandbySec) * effectiveDT;
 
         if (consumed > 0)
         {
             Consume(consumed);
+
+            accumulatedEnergy += consumed;
+            accumulatedDist += dist;
+            accumulatedSimHours += effectiveDT / 3600f;
             
-            if (isActive)
+            if (Time.frameCount % 10 == 0 && RobotEconomicsManager.Instance != null)
             {
-                accumulatedEnergy += consumed;
-                accumulatedDist += dist;
-                accumulatedSimHours += effectiveDT / 3600f;
-                
-                if (Time.frameCount % 10 == 0 && RobotEconomicsManager.Instance != null)
-                {
-                    RobotEconomicsManager.Instance.RecordStatus(transform, accumulatedEnergy, accumulatedDist, accumulatedSimHours);
-                    accumulatedEnergy = 0f;
-                    accumulatedDist = 0f;
-                    accumulatedSimHours = 0f;
-                }
+                RobotEconomicsManager.Instance.RecordStatus(transform, accumulatedEnergy, accumulatedDist, accumulatedSimHours);
+                accumulatedEnergy = 0f;
+                accumulatedDist = 0f;
+                accumulatedSimHours = 0f;
             }
         }
     }
@@ -126,6 +129,7 @@ public class RobotEnergy : MonoBehaviour
 
     public void StartCharging() => isCharging = true;
     public void SetWorking(bool working) => isWorking = working;
+    public void SetIdle(bool idle) => isIdle = idle;
 
     public bool HasEnoughEnergy(float estimatedDistance, float estimatedWorkSeconds = 0f)
     {

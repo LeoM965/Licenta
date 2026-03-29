@@ -9,6 +9,7 @@ namespace Robots.Capabilities.Flight
     {
         private const float TREATMENT_SPEED = 25f;
         private Transform droneTransform;
+        private EnvironmentalSensor lastLoggedParcel;
 
         public TreatmentSystem(Transform drone)
         {
@@ -56,7 +57,12 @@ namespace Robots.Capabilities.Flight
             }
             
             target.AdjustNutrients(nToAdd, pToAdd, kToAdd);
-            LogDecision(target);
+
+            if (target != lastLoggedParcel)
+            {
+                LogDecision(target);
+                lastLoggedParcel = target;
+            }
         }
 
         private void LogDecision(EnvironmentalSensor target)
