@@ -11,7 +11,6 @@ public class CropPlanter : RobotOperator
 
     protected override void Start()
     {
-        base.Start();
         CropDatabase cropDB = CropLoader.Load();
         operation = new PlanterOperation(transform, movement, energy, config, cropDB);
         Invoke(nameof(Initialize), 3f);
@@ -71,6 +70,7 @@ public class CropPlanter : RobotOperator
             var sensor = task.Target.GetComponent<EnvironmentalSensor>();
             if (sensor != null && sensor.activeCrops.Count == 0)
             {
+                operation.SetTaskValue(task.NetValue);
                 parcels.Clear();
                 parcels.Add(sensor);
                 parcelIndex = 0;

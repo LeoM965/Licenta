@@ -18,8 +18,6 @@ namespace AI.Core
         private FenceZone[] zones;
         private float scanTimer = 3f;
 
-        public bool HasTasks => GetTotalTaskCount() > 0;
-
         private void Awake()
         {
             if (Instance == null) 
@@ -31,11 +29,6 @@ namespace AI.Core
         }
 
         private bool isInitialized = false;
-
-        private void Start() 
-        {
-            // Initialization is now handled in Update to ensure all other components are ready
-        }
 
         private void InitializeZones()
         {

@@ -25,7 +25,6 @@ public class TimeManager : MonoBehaviour
     public event Action OnDayChanged; 
     public event Action<float> OnHourChanged;
     public event Action<Season> OnSeasonChanged;
-    public event Action<float> OnTimeJumped;
 
     private float secondsPerMeter;
     private int activeRobotCount = 0;
@@ -61,18 +60,19 @@ public class TimeManager : MonoBehaviour
         
         totalSimulatedHours += hoursToAdd;
 
-        if (Mathf.FloorToInt(timeOfDay) != oldHour) OnHourChanged?.Invoke(timeOfDay);
-        if (currentDay != oldDay)
+        bool dayChanged = currentDay != oldDay;
+        bool hourChanged = Mathf.FloorToInt(timeOfDay) != oldHour || hoursToAdd >= 1f;
+
+        if (dayChanged)
         {
             OnDayChanged?.Invoke();
             OnSeasonChanged?.Invoke(GetCurrentSeason());
         }
-    }
 
-    public void SkipDays(int days)
-    {
-        AdvanceTime(days * 24f);
-        OnTimeJumped?.Invoke(days * 24f);
+        if (hourChanged)
+        {
+            OnHourChanged?.Invoke(timeOfDay);
+        }
     }
 
     public void SkipToDate(int day, int month)
@@ -80,13 +80,12 @@ public class TimeManager : MonoBehaviour
         try
         {
             DateTime current = CurrentDate;
-            DateTime target = new DateTime(current.Year, month, day, 8, 0, 0);
+            DateTime target = new DateTime(current.Year, month, day, current.Hour, current.Minute, current.Second, current.Millisecond);
 
             if (target <= current) target = target.AddYears(1);
 
             double hours = (target - current).TotalHours;
             AdvanceTime((float)hours);
-            OnTimeJumped?.Invoke((float)hours);
             Debug.Log($"[TimeManager] Jumped to {target:d MMM yyyy}");
         }
         catch (Exception)
@@ -103,6 +102,4 @@ public class TimeManager : MonoBehaviour
         if (month >= 9 && month <= 11) return Season.Autumn;
         return Season.Winter;
     }
-
-    public string GetFormattedTime() => CurrentDate.ToString("d MMM yyyy, HH:mm");
 }

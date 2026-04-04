@@ -34,15 +34,21 @@ public class CropManager : MonoBehaviour
 
     private void OnCropSelected(Transform robot, CropData crop, float score, 
         List<AI.Models.Decisions.DecisionAlternative> alternatives, 
-        Sensors.Models.SoilComposition soil, string parcelName)
+        Sensors.Models.SoilComposition soil, string parcelName, int plantCount, float schedulingValue)
     {
         if (AI.Analytics.DecisionTracker.Instance == null) return;
+
+        float unitProfit = crop != null 
+            ? (score / 100f) * crop.yieldValueEUR - crop.seedCostEUR 
+            : 0f;
 
         var record = new AI.Analytics.DecisionRecord
         {
             decisionType = "Selectie Cultura",
             chosenOption = crop != null ? crop.name : "Niciuna",
             chosenScore = score,
+            netValue = unitProfit * plantCount,
+            schedulingValue = schedulingValue,
             alternatives = alternatives,
             factors = crop?.requirements?.BuildFactors(soil) ?? new AI.Models.Decisions.DecisionFactors(),
             parcelName = parcelName

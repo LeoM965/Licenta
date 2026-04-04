@@ -37,7 +37,9 @@ namespace AI.Analytics
         {
             if (robot == null || record == null) return;
 
-            record.timestamp = Time.time;
+            record.timestamp = TimeManager.Instance != null 
+                ? TimeManager.Instance.TotalSimulatedHours 
+                : Time.time;
             lastDecisions[robot] = record;
 
             if (!decisionHistory.ContainsKey(robot))
@@ -75,6 +77,15 @@ namespace AI.Analytics
                 return 0f;
             
             return totalScores[robot] / history.Count;
+        }
+
+        public List<DecisionRecord> GetRecentDecisions(Transform robot, int count = 10)
+        {
+            if (!decisionHistory.TryGetValue(robot, out var history) || history.Count == 0)
+                return new List<DecisionRecord>();
+
+            int start = Mathf.Max(0, history.Count - count);
+            return history.GetRange(start, history.Count - start);
         }
 
         private void CleanupDestroyedRobots()

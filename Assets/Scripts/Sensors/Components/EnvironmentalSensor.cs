@@ -57,11 +57,6 @@ namespace Sensors.Components
         public float harvestedRevenue { get; private set; }
         public float harvestedSeedCost { get; private set; }
 
-        // Statistici istorice (acumulate din sezoanele anterioare)
-        public float historicalRevenue { get; private set; }
-        public float historicalWeightKg { get; private set; }
-        public float historicalSeedCost { get; private set; }
-
         public SoilSettings Settings
         {
             get
@@ -142,11 +137,6 @@ namespace Sensors.Components
                 record.totalWeightKg += harvestedWeightKg;
                 record.totalSeedCost += harvestedSeedCost;
             }
-
-            // Salveaza in istoric global pe parcela
-            historicalRevenue += harvestedRevenue;
-            historicalWeightKg += harvestedWeightKg;
-            historicalSeedCost += harvestedSeedCost;
 
             // Reseteaza complet pentru noua cultura
             harvestedCount = 0;

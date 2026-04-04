@@ -24,9 +24,7 @@ public abstract class RobotOperator : MonoBehaviour
         energyManager = new RobotEnergyManager(transform, energy, movement);
     }
 
-    protected virtual void Start()
-    {
-    }
+    protected virtual void Start() { }
 
     protected virtual void OnDisable()
     {

@@ -144,7 +144,6 @@ namespace Robots.Components.Movement
                 maxTilt, tiltSpeed, ref currentPitch, ref currentRoll, transform, dt);
         }
 
-        public void SetMovementBounds(Rect bounds) => movementBounds = bounds;
         public void SetTerrain(Terrain t) => terrain = t;
         
         public void Randomize(float speedVar, float rotVar, float tiltVar, float maxTiltVar, float avoidVar)

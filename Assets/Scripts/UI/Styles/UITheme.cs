@@ -22,7 +22,7 @@ public class UITheme : ScriptableObject
     public Color warnColor;
     public Color badColor;
 
-    private GUIStyle titleStyle, labelStyle, valueStyle, goodStyle, warnStyle, badStyle, headerStyle, footerStyle, tabStyle, tabActiveStyle, buttonStyle;
+    private GUIStyle titleStyle, labelStyle, valueStyle, goodStyle, warnStyle, badStyle, headerStyle, footerStyle, tabStyle, tabActiveStyle, buttonStyle, inputStyle;
     private Texture2D tabBackgroundTexture, tabActiveBackgroundTexture;
 
     private GUIStyle S(ref GUIStyle f, int sz, FontStyle fs, Color c) =>
@@ -45,7 +45,7 @@ public class UITheme : ScriptableObject
     public GUIStyle Tab => SBtn(ref tabStyle, 11, FontStyle.Normal, tabColor);
     public GUIStyle TabActive => SBtn(ref tabActiveStyle, 11, FontStyle.Bold, Color.white);
     public GUIStyle Button => SBtn(ref buttonStyle, 12, FontStyle.Bold, Color.white);
-    public GUIStyle Input => SBtn(ref labelStyle, 11, FontStyle.Normal, labelColor); // Using a button-like base for border support
+    public GUIStyle Input => SBtn(ref inputStyle, 11, FontStyle.Normal, labelColor);
 
     public Texture2D TabBg => tabBackgroundTexture ??= GenerateSolidColorTexture(tabBackground);
     public Texture2D TabActiveBg => tabActiveBackgroundTexture ??= GenerateSolidColorTexture(tabActiveBackground);
@@ -89,7 +89,7 @@ public class UITheme : ScriptableObject
     private void OnValidate()
     {
         titleStyle = labelStyle = valueStyle = goodStyle = warnStyle = badStyle = headerStyle = footerStyle = null;
-        tabStyle = tabActiveStyle = buttonStyle = null;
+        tabStyle = tabActiveStyle = buttonStyle = inputStyle = null;
         tabBackgroundTexture = tabActiveBackgroundTexture = null;
     }
 }

@@ -11,7 +11,6 @@ public class CropHarvester : RobotOperator
 
     protected override void Start()
     {
-        base.Start();
         var db = CropLoader.Load();
         operation = new HarvesterOperation(transform, movement, energy, config, db);
         Invoke(nameof(Initialize), 5f);

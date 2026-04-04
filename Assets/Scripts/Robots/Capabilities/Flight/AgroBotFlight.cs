@@ -41,7 +41,7 @@ namespace Robots.Capabilities.Flight
         {
             motor = gameObject.AddComponent<DroneMotor>();
             navigation = new FlightNavigation();
-            treatment = new TreatmentSystem(transform);
+            treatment = new TreatmentSystem(transform, navigation);
             energy = GetComponent<RobotEnergy>() ?? gameObject.AddComponent<RobotEnergy>();
             energyManager = new RobotEnergyManager(transform, energy, this);
 

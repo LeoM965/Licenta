@@ -9,8 +9,10 @@ namespace AI.Analytics
         public string decisionType;
         public string chosenOption;
         public float chosenScore;
+        public float netValue;
         public string parcelName;
         public float timestamp;
+        public float schedulingValue;
         public List<DecisionAlternative> alternatives;
         public DecisionFactors factors;
         

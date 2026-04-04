@@ -21,18 +21,6 @@ public class CropRequirements
         if (potassium != null) yield return new KeyValuePair<string, CropRange>("potassium", potassium);
     }
 
-    public float CalculateTotalScore(SoilComposition soil)
-    {
-        float total = 0f;
-        int count = 0;
-        foreach (var pair in GetRanges())
-        {
-            total += pair.Value.GetScore(GetSoilValue(soil, pair.Key)) * 100f;
-            count++;
-        }
-        return count > 0 ? total / count : 0f;
-    }
-
     public float CalculateTotalScore(SoilComposition soil, 
         float nMin, float nOpt, float nMax,
         float pMin, float pOpt, float pMax,

@@ -31,12 +31,17 @@ namespace UI.Menus.Tabs
 
             DrawSectionTitle(x, ref y, "ISTORIC ZILNIC DETALIAT", theme);
 
+            MapHelper.DrawBox(new Rect(x - 5, y - 2, 610, 20), new Color(1f, 1f, 1f, 0.05f));
             DrawTableHeader(x, y, theme);
             y += 20;
 
             DrawScrollableArea(x, ref y, 610, 200, history.Count, 20, (rowY) => {
                 for (int i = history.Count - 1; i >= 0; i--)
                 {
+                    int rowIdx = history.Count - 1 - i;
+                    if (rowIdx % 2 == 0)
+                        MapHelper.DrawBox(new Rect(-5, rowY - 1, 610, 18), new Color(1f, 1f, 1f, 0.025f));
+
                     DrawHistoryRow(0, rowY, history[i], theme);
                     rowY += 20;
                 }
@@ -49,28 +54,20 @@ namespace UI.Menus.Tabs
             
             GUI.Label(new Rect(x, y, 400, 18), "ANALIZĂ EVOLUȚIE (IERI vs AZI)", theme.Value);
             
-            // Adaugă butonul de Export în dreapta titlului
             if (GUI.Button(new Rect(x + 450, y, 150, 25), "EXPORT EXCEL (CSV)"))
-            {
                 EconomicsHistoryManager.Instance.ExportToCSV();
-            }
 
-            y += 22;
+            y += 24;
+            MapHelper.DrawBox(new Rect(x - 5, y - 3, 400, 40), new Color(1f, 1f, 1f, 0.03f));
 
             float profitDelta = latest.ProfitDelta;
-            string deltaSign = profitDelta >= 0 ? "+" : "";
-            GUIStyle deltaStyle = profitDelta >= 0 ? theme.Good : theme.Bad;
-
             GUI.Label(new Rect(x, y, 200, 16), "Evoluție Profit Net:", theme.Label);
-            GUI.Label(new Rect(x + 150, y, 150, 16), $"{deltaSign}{profitDelta:F2} €", deltaStyle);
+            GUI.Label(new Rect(x + 150, y, 150, 16), $"{(profitDelta >= 0 ? "+" : "")}{profitDelta:F2} €", profitDelta >= 0 ? theme.Good : theme.Bad);
 
             y += 18;
             float revDelta = latest.RevenueDelta;
-            string revSign = revDelta >= 0 ? "+" : "";
-            GUIStyle revStyle = revDelta >= 0 ? theme.Good : theme.Bad;
-
             GUI.Label(new Rect(x, y, 200, 16), "Evoluție Venituri:", theme.Label);
-            GUI.Label(new Rect(x + 150, y, 150, 16), $"{revSign}{revDelta:F2} €", revStyle);
+            GUI.Label(new Rect(x + 150, y, 150, 16), $"{(revDelta >= 0 ? "+" : "")}{revDelta:F2} €", revDelta >= 0 ? theme.Good : theme.Bad);
         }
 
         private void DrawTableHeader(float x, float y, UITheme theme)
@@ -83,21 +80,14 @@ namespace UI.Menus.Tabs
         private void DrawHistoryRow(float x, float y, DailySnapshot s, UITheme theme)
         {
             string[] values = {
-                $"Ziua {s.Day}",
-                s.NetProfit.ToString("F1") + " €",
-                s.TotalRevenue.ToString("F1") + " €",
-                s.TotalCosts.ToString("F1") + " €",
-                s.TotalWeightKg.ToString("F1"),
-                s.TotalPlants.ToString()
+                $"Ziua {s.Day}", s.NetProfit.ToString("F1") + " €",
+                s.TotalRevenue.ToString("F1") + " €", s.TotalCosts.ToString("F1") + " €",
+                s.TotalWeightKg.ToString("F1"), s.TotalPlants.ToString()
             };
 
             GUIStyle[] styles = {
-                theme.Label,
-                theme.GetProfitStyle(s.NetProfit),
-                theme.Label,
-                theme.Label,
-                theme.Label,
-                theme.Label
+                theme.Label, theme.GetProfitStyle(s.NetProfit),
+                theme.Label, theme.Label, theme.Label, theme.Label
             };
 
             UIDrawUtils.DrawRow(x, y, colOffsets, values, styles, colWidth: 90f);

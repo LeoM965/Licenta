@@ -23,6 +23,9 @@ public class PlanterOperation
     public int TotalPositions => plantPositions.Count;
     public int TotalPlantsPlaced => sessionPlantsPlaced + executor.PlantsPlaced;
     public float TotalCost => sessionTotalCost + executor.TotalCost;
+    private float currentTaskValue;
+
+    public void SetTaskValue(float value) => currentTaskValue = value;
 
     public PlanterOperation(Transform t, RobotMovement m, RobotEnergy e, PlantingConfig c, CropDatabase db)
     {
@@ -89,27 +92,28 @@ public class PlanterOperation
         bool forced = idx >= 0 && cropDB?.crops != null && idx < cropDB.crops.Length;
         CropData crop;
 
+        // Pre-calculate plant positions to know the count for the economic decision
+        Collider col = parcel.GetComponent<Collider>();
+        if (col != null)
+        {
+            plantPositions = PlantingPositionGenerator.Generate(col.bounds, config);
+        }
+        int plantCount = plantPositions.Count;
+
         if (forced)
         {
             crop = cropDB.crops[idx];
         }
         else
         {
-            crop = CropSelector.SelectBestCrop(cropDB, parcel.composition, transform, parcel.name);
+            crop = CropSelector.SelectBestCrop(cropDB, parcel.composition, transform, parcel.name, plantCount, currentTaskValue);
             if (crop != null && cropDB != null)
                 idx = cropDB.GetIndex(crop.name);
         }
 
         if (crop == null) return;
 
-        Collider col = parcel.GetComponent<Collider>();
-        if (col != null)
-        {
-             // We have to calculate plant positions here to know the total count before passing to executor
-             plantPositions = PlantingPositionGenerator.Generate(col.bounds, config);
-        }
-
-        executor.SetTarget(parcel, crop, CropLoader.LoadPrefab(crop.prefabPath), idx, plantPositions.Count);
+        executor.SetTarget(parcel, crop, CropLoader.LoadPrefab(crop.prefabPath), idx, plantCount);
     }
 
     private void FinishParcel()

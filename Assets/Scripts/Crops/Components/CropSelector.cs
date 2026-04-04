@@ -6,10 +6,10 @@ using Settings;
 
 public static class CropSelector
 {
-    public delegate void OnCropSelected(Transform robot, CropData crop, float score, List<DecisionAlternative> alternatives, SoilComposition soil, string parcelName);
+    public delegate void OnCropSelected(Transform robot, CropData crop, float score, List<DecisionAlternative> alternatives, SoilComposition soil, string parcelName, int plantCount, float schedulingValue);
     public static event OnCropSelected CropSelected;
 
-    public static CropData SelectBestCrop(CropDatabase db, SoilComposition soil, Transform robot, string parcelName)
+    public static CropData SelectBestCrop(CropDatabase db, SoilComposition soil, Transform robot, string parcelName, int plantCount, float schedulingValue)
     {
         if (db == null || db.crops == null || db.crops.Length == 0)
             return null;
@@ -67,7 +67,7 @@ public static class CropSelector
         // Sort by Suitability
         alternatives.Sort((a, b) => b.score.CompareTo(a.score));
         
-        CropSelected?.Invoke(robot, bestCrop, bestScore, alternatives, soil, parcelName);
+        CropSelected?.Invoke(robot, bestCrop, bestScore, alternatives, soil, parcelName, plantCount, schedulingValue);
         return bestCrop;
     }
 

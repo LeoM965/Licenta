@@ -113,9 +113,6 @@ namespace Economics.Services
                 summary.ParcelCount += varietyStats.ParcelCount;
             }
 
-            // NOTA: datele istorice sunt deja incluse per cultura din CropHistory (liniile 44-53)
-            // NU mai adunam parcel.historicalRevenue aici - ar fi dubla contorizare!
-
             if (RobotEconomicsManager.Instance != null)
             {
                 summary.TotalEnergyCost = RobotEconomicsManager.Instance.GlobalEnergyCost;

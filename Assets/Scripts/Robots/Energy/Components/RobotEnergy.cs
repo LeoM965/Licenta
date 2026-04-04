@@ -135,11 +135,4 @@ public class RobotEnergy : MonoBehaviour
     {
         return battery.CanPerformTask(estimatedDistance, estimatedWorkSeconds);
     }
-
-    public void SetFullBattery()
-    {
-        battery.currentKWh = battery.maxKWh;
-        isCharging = false;
-        OnBatteryChanged?.Invoke(BatteryPercent);
-    }
 }

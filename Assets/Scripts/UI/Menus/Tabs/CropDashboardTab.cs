@@ -9,34 +9,37 @@ namespace UI.Menus.Tabs
     {
         private readonly float[] colOffsets = { 0, 130, 200, 280, 360, 440, 520, 590, 660 };
 
-        public override void DrawTab(float x, float y, UITheme theme)
-        {
-            // Placeholder for base override - logic is in DrawTab overload
-        }
+        public override void DrawTab(float x, float y, UITheme theme) { }
 
         public void DrawTab(float x, float y, EconomicReport activeReport, CropData[] crops, UITheme theme)
         {
-            // Buton Export Culturi
             if (GUI.Button(new Rect(x + 570, y - 35, 140, 25), "EXPORT CROP DATA"))
             {
                 if (EconomicsHistoryManager.Instance != null)
                     EconomicsHistoryManager.Instance.ExportCropsToCSV();
             }
 
+            MapHelper.DrawBox(new Rect(x - 5, y - 2, 720, 20), new Color(1f, 1f, 1f, 0.05f));
             DrawTableHeader(x, y, theme);
-            y += 20;
+            y += 22;
+            UIDrawUtils.DrawHorizontalLine(x, y - 2, 720);
+            y += 2;
 
-            foreach (var crop in crops)
+            for (int i = 0; i < crops.Length; i++)
             {
-                activeReport.AnalysisByVariety.TryGetValue(crop.name, out var stats);
-                DrawDataRowCustom(x, y, crop.name, stats, stats.NetProfit, theme, isTotalRow: false);
+                if (i % 2 == 0)
+                    MapHelper.DrawBox(new Rect(x - 5, y - 1, 720, 20), new Color(1f, 1f, 1f, 0.025f));
+
+                activeReport.AnalysisByVariety.TryGetValue(crops[i].name, out var stats);
+                DrawDataRowCustom(x, y, crops[i].name, stats, stats.NetProfit, theme, false);
                 y += 22;
             }
 
             UIDrawUtils.DrawHorizontalLine(x, y + 4, 720);
             
+            MapHelper.DrawBox(new Rect(x - 5, y + 10, 720, 22), new Color(1f, 1f, 1f, 0.06f));
             float cropOnlyProfit = activeReport.FarmTotals.TotalRevenue - activeReport.FarmTotals.TotalSeedCost;
-            DrawDataRowCustom(x, y + 15, "TOTAL CULTURI", activeReport.FarmTotals, cropOnlyProfit, theme, isTotalRow: true);
+            DrawDataRowCustom(x, y + 15, "TOTAL CULTURI", activeReport.FarmTotals, cropOnlyProfit, theme, true);
             
             y += 55;
             DrawOperationalBreakdown(x, y, activeReport.FarmTotals, theme);
@@ -53,29 +56,18 @@ namespace UI.Menus.Tabs
             int totalAll = s.TotalPlants + s.HarvestedPlants;
             GUIStyle labelStyle = isTotalRow ? theme.Value : (totalAll > 0 ? theme.Good : theme.Label);
             GUIStyle dataStyle = isTotalRow ? theme.Value : theme.Label;
-
-            string plantText = totalAll.ToString();
             float roi = (s.TotalSeedCost > 0) ? (profitToShow / s.TotalSeedCost) * 100f : 0f;
 
             string[] values = {
-                label,
-                plantText,
-                s.TotalSeedCost.ToString("F1"),
-                s.TotalRevenue.ToString("F1"),
-                s.TotalWeightKg.ToString("F1"),
-                profitToShow.ToString("F1"),
-                roi.ToString("F0") + "%",
-                s.AvgSoilCompatibility.ToString("F0") + "%"
+                label, totalAll.ToString(),
+                s.TotalSeedCost.ToString("F1"), s.TotalRevenue.ToString("F1"),
+                s.TotalWeightKg.ToString("F1"), profitToShow.ToString("F1"),
+                roi.ToString("F0") + "%", s.AvgSoilCompatibility.ToString("F0") + "%"
             };
 
             GUIStyle[] styles = {
-                labelStyle,
-                dataStyle,
-                dataStyle,
-                dataStyle,
-                dataStyle,
-                theme.GetProfitStyle(profitToShow),
-                theme.GetProfitStyle(roi),
+                labelStyle, dataStyle, dataStyle, dataStyle, dataStyle,
+                theme.GetProfitStyle(profitToShow), theme.GetProfitStyle(roi),
                 theme.GetProfitStyle(s.AvgSoilCompatibility - 50f)
             };
 
@@ -85,11 +77,12 @@ namespace UI.Menus.Tabs
         private void DrawOperationalBreakdown(float x, float y, CropStats totals, UITheme theme)
         {
             GUI.Label(new Rect(x, y, 320, 18), "DETALII COSTURI OPERAȚIONALE (LOGISTICĂ)", theme.Value);
-            y += 26;
+            y += 20;
+            MapHelper.DrawBox(new Rect(x, y, 300, 1), new Color(1f, 1f, 1f, 0.1f));
+            y += 8;
             
-            float labelWidth = 180;
             float indent = 12;
-            float valueX = x + indent + labelWidth;
+            float valueX = x + indent + 180;
 
             DrawSmallRow(x + indent, valueX, ref y, "Venit Recoltat:", totals.HarvestedRevenue.ToString("F2") + " €", theme.Label, theme.Good);
             DrawSmallRow(x + indent, valueX, ref y, "Venit în Câmp:", totals.FieldRevenue.ToString("F2") + " €", theme.Label, theme.Value);
@@ -101,6 +94,9 @@ namespace UI.Menus.Tabs
             y += 8;
             UIDrawUtils.DrawHorizontalLine(x + indent, y, 420);
             y += 10;
+
+            Color profitBg = totals.NetProfit >= 0 ? new Color(0.1f, 0.8f, 0.3f, 0.08f) : new Color(0.9f, 0.2f, 0.2f, 0.08f);
+            MapHelper.DrawBox(new Rect(x, y - 2, 450, 20), profitBg);
             DrawSmallRow(x + indent, valueX, ref y, "PROFIT NET FINAL:", totals.NetProfit.ToString("F2") + " €", theme.Label, theme.GetProfitStyle(totals.NetProfit));
         }
 

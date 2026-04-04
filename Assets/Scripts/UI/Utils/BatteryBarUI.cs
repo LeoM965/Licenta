@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BatteryBarUI : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class BatteryBarUI : MonoBehaviour
     private Camera mainCam;
     private bool isVisible;
     private float visCheckTimer;
+    private GUIStyle chargingStyle;
     private const float VIS_CHECK_INTERVAL = 0.25f;
     private const float MAX_RENDER_DIST_SQR = 80f * 80f;
 
@@ -35,6 +37,12 @@ public class BatteryBarUI : MonoBehaviour
         Vector3 screenPos = mainCam.WorldToScreenPoint(transform.position + offset);
         if (screenPos.z < 0) return;
 
+        float x = screenPos.x - barSize.x / 2;
+        float y = Screen.height - screenPos.y - barSize.y / 2;
+
+        Rect barRect = new Rect(x, y, barSize.x, barSize.y);
+        if (IsOverCanvasUI(barRect)) return;
+
         float pct = energy.BatteryPercent;
         Color barColor = pct > 0.5f ? Color.green : (pct > 0.2f ? Color.yellow : Color.red);
         
@@ -44,22 +52,40 @@ public class BatteryBarUI : MonoBehaviour
             barColor = Color.Lerp(barColor, Color.cyan, pulse * 0.7f);
         }
 
-        float x = screenPos.x - barSize.x / 2;
-        float y = Screen.height - screenPos.y - barSize.y / 2;
-
         GUI.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-        GUI.DrawTexture(new Rect(x, y, barSize.x, barSize.y), Texture2D.whiteTexture);
+        GUI.DrawTexture(barRect, Texture2D.whiteTexture);
         
         GUI.color = barColor;
         GUI.DrawTexture(new Rect(x, y, barSize.x * pct, barSize.y), Texture2D.whiteTexture);
         
         if (energy.IsCharging)
         {
-            GUIStyle textStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+            if (chargingStyle == null)
+            {
+                chargingStyle = new GUIStyle(GUI.skin.label)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontStyle = FontStyle.Bold
+                };
+                chargingStyle.normal.textColor = Color.white;
+            }
             GUI.color = Color.white;
-            GUI.Label(new Rect(x, y, barSize.x, barSize.y), "CHARGING");
+            GUI.Label(barRect, "CHARGING", chargingStyle);
         }
 
         GUI.color = Color.white;
+    }
+
+    private bool IsOverCanvasUI(Rect barRect)
+    {
+        Vector2 center = new Vector2(barRect.x + barRect.width * 0.5f, barRect.y + barRect.height * 0.5f);
+        var pointer = new PointerEventData(EventSystem.current) { position = center };
+        var results = new System.Collections.Generic.List<RaycastResult>();
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.RaycastAll(pointer, results);
+            return results.Count > 0;
+        }
+        return false;
     }
 }
